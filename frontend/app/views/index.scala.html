@@ -1,0 +1,13 @@
+@import org.fedoraproject.javadeptools.ClassEntry
+@(queryResults: Option[Iterable[ClassEntry]])
+
+@main("Search for Java classes in Fedora") {
+    <form method="GET">
+        <input type="text" name="q"/>
+        <button type="submit">Search</button>
+    </form>
+    @queryResults match {
+        case Some(r) => { @results(r) }
+        case None => {}
+    }
+}
