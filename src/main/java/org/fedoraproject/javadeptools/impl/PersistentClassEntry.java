@@ -28,8 +28,15 @@ import org.fedoraproject.javadeptools.ClassEntry;
 @Entity
 @Table(name = "classEntry")
 public class PersistentClassEntry implements ClassEntry {
+
     private String className;
+
+    @ManyToOne
+    @JoinColumn(name = "fileArtifactId")
     private PersistentFileArtifact fileArtifact;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     public PersistentClassEntry() {
@@ -39,26 +46,16 @@ public class PersistentClassEntry implements ClassEntry {
         this.className = className;
     }
 
-    /* (non-Javadoc)
-     * @see org.fedoraproject.javadeptools.impl.ClassEntry#getClassName()
-     */
     @Override
     public String getClassName() {
         return className;
     }
 
-    /* (non-Javadoc)
-     * @see org.fedoraproject.javadeptools.impl.ClassEntry#getFileArtifact()
-     */
     @Override
-    @ManyToOne
-    @JoinColumn(name = "fileArtifactId")
     public PersistentFileArtifact getFileArtifact() {
         return fileArtifact;
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getId() {
         return id;
     }

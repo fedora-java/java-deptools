@@ -1,9 +1,26 @@
+/*-
+ * Copyright (c) 2015 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.fedoraproject.javadeptools.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -20,9 +37,16 @@ import org.fedoraproject.javadeptools.FileArtifact;
 @Table(name = "fileArtifact")
 public class PersistentFileArtifact implements FileArtifact {
 
-    private Set<PersistentClassEntry> classes;
+    @OneToMany(mappedBy = "fileArtifact", cascade = CascadeType.ALL)
+    private Set<PersistentClassEntry> classes = new HashSet<PersistentClassEntry>();
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String path;
+
+    @ManyToOne
+    @JoinColumn(name = "pkgId")
     private PersistentPackage pkg;
 
     public PersistentFileArtifact() {
@@ -32,61 +56,40 @@ public class PersistentFileArtifact implements FileArtifact {
         this.path = path;
     }
 
-    @OneToMany(mappedBy = "fileArtifact")
     public Collection<ClassEntry> getClasses() {
-        return Collections.<ClassEntry>unmodifiableCollection(classes);
+        return Collections.<ClassEntry> unmodifiableCollection(classes);
     }
 
-    /* (non-Javadoc)
-     * @see org.fedoraproject.javadeptools.impl.FileArtifact#getId()
-     */
-    @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
     public Long getId() {
         return id;
     }
 
-    /* (non-Javadoc)
-     * @see org.fedoraproject.javadeptools.impl.FileArtifact#getPath()
-     */
     public String getPath() {
         return path;
     }
 
-    /* (non-Javadoc)
-     * @see org.fedoraproject.javadeptools.impl.FileArtifact#getPkg()
-     */
-    @ManyToOne
-    @JoinColumn(name = "pkgId")
     public PersistentPackage getPkg() {
         return pkg;
     }
 
     public void setClasses(Set<PersistentClassEntry> classes) {
+        classes.forEach(c -> c.setFileArtifact(this));
         this.classes = classes;
     }
-    
+
     public void addClass(PersistentClassEntry clazz) {
+        clazz.setFileArtifact(this);
         this.classes.add(clazz);
     }
 
-    /* (non-Javadoc)
-     * @see org.fedoraproject.javadeptools.impl.FileArtifact#setId(java.lang.Long)
-     */
     public void setId(Long id) {
         this.id = id;
     }
 
-    /* (non-Javadoc)
-     * @see org.fedoraproject.javadeptools.impl.FileArtifact#setPath(java.lang.String)
-     */
     public void setPath(String path) {
         this.path = path;
     }
 
-    /* (non-Javadoc)
-     * @see org.fedoraproject.javadeptools.impl.FileArtifact#setPkg(org.fedoraproject.javadeptools.Package)
-     */
     public void setPkg(PersistentPackage pkg) {
         this.pkg = pkg;
     }

@@ -1,3 +1,18 @@
+/*-
+ * Copyright (c) 2015 Red Hat, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.fedoraproject.javadeptools.impl;
 
 import java.util.Collection;
@@ -5,6 +20,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,8 +34,12 @@ import org.fedoraproject.javadeptools.Package;
 @Entity
 @Table(name = "package")
 public class PersistentPackage implements Package {
+
+    @OneToMany(mappedBy = "pkg", cascade = CascadeType.ALL)
     private Set<PersistentFileArtifact> fileArtifacts = new HashSet<PersistentFileArtifact>();
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private String name;
@@ -31,66 +51,32 @@ public class PersistentPackage implements Package {
         this.name = name;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.fedoraproject.javadeptools.impl.Package#getFileArtifacts()
-     */
-    @OneToMany(mappedBy = "pkg")
     public Collection<FileArtifact> getFileArtifacts() {
-        return Collections.<FileArtifact>unmodifiableCollection(fileArtifacts);
+        return Collections.<FileArtifact> unmodifiableCollection(fileArtifacts);
     }
-    
+
     public void addFileArtifact(PersistentFileArtifact file) {
+        file.setPkg(this);
         this.fileArtifacts.add(file);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.fedoraproject.javadeptools.impl.Package#getId()
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     public Long getId() {
         return id;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.fedoraproject.javadeptools.impl.Package#getName()
-     */
     public String getName() {
         return name;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.fedoraproject.javadeptools.impl.Package#setFileArtifacts(java.util
-     * .Set)
-     */
     public void setFileArtifacts(Set<PersistentFileArtifact> fileArtifacts) {
+        fileArtifacts.forEach(f -> f.setPkg(this));
         this.fileArtifacts = fileArtifacts;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.fedoraproject.javadeptools.impl.Package#setId(java.lang.Long)
-     */
     public void setId(Long id) {
         this.id = id;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.fedoraproject.javadeptools.impl.Package#setName(java.lang.String)
-     */
     public void setName(String name) {
         this.name = name;
     }
