@@ -34,33 +34,42 @@ public class DefaultDatabase implements Database {
         this.em = em;
     }
 
+    @Override
     public Collection<Package> getPackages() {
-        List<Package> result = em.createQuery("from PersistentPackage",
+        return em.createQuery("from PersistentPackage",
                 Package.class).getResultList();
-        return result;
     }
 
+    @Override
     public Package getPackage(String name) {
-        // TODO Auto-generated method stub
-        return null;
+        return em
+                .createQuery("from PersistentPackage where name = ?1",
+                        Package.class).setParameter(1, name)
+                .getSingleResult();
     }
 
     @Override
     public Collection<Package> queryPackages(String packageNameGlob) {
-        // TODO Auto-generated method stub
-        return null;
+        return em
+                .createQuery("from PersistentPackage where name like ?1",
+                        Package.class).setParameter(1, packageNameGlob)
+                .getResultList();
     }
 
     @Override
     public Collection<FileArtifact> queryFiles(String fileNameGlob) {
-        // TODO Auto-generated method stub
-        return null;
+        return em
+                .createQuery("from PersistentFileArtifact where path like ?1",
+                        FileArtifact.class).setParameter(1, fileNameGlob)
+                .getResultList();
     }
 
     @Override
     public Collection<ClassEntry> queryClasses(String classNameGlob) {
-        // TODO Auto-generated method stub
-        return null;
+        return em
+                .createQuery("from PersistentClassEntry where className like ?1",
+                        ClassEntry.class).setParameter(1, classNameGlob)
+                .getResultList();
     }
 
     @Override

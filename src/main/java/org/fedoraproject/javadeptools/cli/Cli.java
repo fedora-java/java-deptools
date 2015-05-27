@@ -26,6 +26,7 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.fedoraproject.javadeptools.ClassEntry;
 import org.fedoraproject.javadeptools.Database;
 import org.fedoraproject.javadeptools.Package;
 import org.fedoraproject.javadeptools.impl.DatabaseFactory;
@@ -77,6 +78,11 @@ class Cli {
         this.args = argList.subList(1, argList.size());
     }
 
+    private void printClassEntry(ClassEntry c) {
+        System.out.println(c.getFileArtifact().getPkg().getName() + " | "
+                + c.getFileArtifact().getPath() + " | " + c.getClassName());
+    }
+
     void run() throws Exception {
         if (line.hasOption("help")) {
             HelpFormatter formatter = new HelpFormatter();
@@ -105,6 +111,9 @@ class Cli {
             Collection<Package> packages = db.getPackages();
             packages.forEach(p -> System.out.println(p.getName()));
             return;
+        case "query":
+            db.queryClasses('%' + args.get(0) + '%').forEach(
+                    c -> printClassEntry(c));
         }
 
         assert false;
