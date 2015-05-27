@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2012 Red Hat, Inc.
+ * Copyright (c) 2012-2015 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fedoraproject.javadeptools;
+package org.fedoraproject.javadeptools.impl;
 
 import java.io.File;
 import java.io.IOException;
