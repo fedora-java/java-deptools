@@ -1,0 +1,13 @@
+<configuration>
+  <loggers>
+    <root level="warn">
+      <appenderRef ref="console"/>
+    </root>
+  </loggers>
+  <appenders>
+    <console name="console" target="SYSTEM_OUT">
+      <patternLayout
+        pattern="%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n"/>
+    </console>
+  </appenders>
+</configuration>

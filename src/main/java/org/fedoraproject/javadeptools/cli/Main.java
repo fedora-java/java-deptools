@@ -15,17 +15,16 @@
  */
 package org.fedoraproject.javadeptools.cli;
 
-
 public class Main {
-  public static void main(String[] args) {
-    try {
-      Cli app = new Cli(args);
-      app.run();
-      System.exit(0);
-    } catch (Exception e) {
-      System.err.println("Unhandled exception:");
-      e.printStackTrace();
-      System.exit(1);
+    public static void main(String[] args) {
+        try {
+            Cli app = new Cli(args);
+            app.run();
+            System.exit(0);
+        } catch (Exception e) {
+            System.err.println("Unhandled exception:");
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
-  }
 }
