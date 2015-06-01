@@ -1,11 +1,18 @@
 @import org.fedoraproject.javadeptools.ClassEntry
-@(queryResults: Iterable[ClassEntry])
+@import org.fedoraproject.javadeptools.impl.PersistentClassEntry
+@(page:Page[ClassEntry])
+<div>Showing results from @page.from to @page.to of total @page.totalCount</div>
 <table>
-@for(row <-queryResults) {
-    <tr>
-      <td>@row.getClassName</td>
-      <td>@row.getFileArtifact.getPath</td>
-      <td>@row.getFileArtifact.getPkg.getName</td>
-    </tr>
-}
+	<tr>
+		<th>Class name</th>
+		<th>JAR path</th>
+		<th>Package name</th>
+	</tr>
+	@for(row <-page.content) {
+	<tr>
+		<td>@row.asInstanceOf[PersistentClassEntry].getId @row.getClassName</td>
+		<td>@row.getFileArtifact.getPath</td>
+		<td>@row.getFileArtifact.getPkg.getName</td>
+	</tr>
+	}
 </table>

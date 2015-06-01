@@ -5,6 +5,24 @@ import java.io.File
 import play.api.mvc.{ Controller, Action }
 import org.fedoraproject.javadeptools.impl.DatabaseFactory
 import org.fedoraproject.javadeptools.Database
+import org.fedoraproject.javadeptools.Query
+import play.api.mvc.Request
+
+object Page {
+  val itemsPerPage = 100
+  def apply[T](query: Query[T])(implicit request: Request[Any]) = {
+    val pages = query.getCount / itemsPerPage
+    val currentPage = request.getQueryString("page").map(_.toInt).getOrElse(1)
+    val total = query.getCount
+    query.setLimits((currentPage - 1) * itemsPerPage, itemsPerPage)
+    new Page(query.getResults.asScala, currentPage, total)
+  }
+}
+
+case class Page[T](content: Iterable[T], currentPage: Int, totalCount: Int) {
+  val from = (currentPage - 1) * Page.itemsPerPage
+  val to = from + content.size
+}
 
 object Application extends Controller {
 
@@ -18,26 +36,14 @@ object Application extends Controller {
   }
 
   def index = Action { implicit request =>
-    val content = request.getQueryString("q").map { q => db.queryClasses("%" + q + "%").getResults.asScala }
-    Ok(views.html.index(content))
+    try {
+      val content = request.getQueryString("q").map { q =>
+        val query = db.queryClasses("%" + q + "%")
+        Page(query)
+      }
+      Ok(views.html.index(content))
+    } catch {
+      case _: NumberFormatException => BadRequest
+    }
   }
-
-  //  def results = Action { implicit request =>
-  ////    val query = SQL("""
-  ////      SELECT class_entry.name, file.path
-  ////      FROM class_entry JOIN class_file_relation ON class_entry.id = class_id
-  ////           JOIN file ON file_id = file.id
-  ////      """)
-  ////    val parser = for {
-  ////      c <- str("class_entry.name")
-  ////      f <- str("file.path")
-  ////    } yield Entry(c, f)
-  ////    DB.withConnection { implicit c =>
-  ////      val results = query.as(parser *)
-  ////      Ok(views.html.index(Some(results)))
-  ////    }
-  //    match request.getQueryString("q")) {
-  //      case Some(q): Ok(views.html.indexdb.queryClasses()
-  //  } 
-
 }
