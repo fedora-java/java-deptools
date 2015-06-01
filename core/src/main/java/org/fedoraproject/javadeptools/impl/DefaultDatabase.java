@@ -17,7 +17,6 @@ package org.fedoraproject.javadeptools.impl;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 

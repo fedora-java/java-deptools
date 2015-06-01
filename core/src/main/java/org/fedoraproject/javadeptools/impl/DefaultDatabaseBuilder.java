@@ -56,15 +56,15 @@ public class DefaultDatabaseBuilder {
 
     public void addRpm(File rpm) {
         em.getTransaction().begin();
-        // TODO name
-        PersistentPackage pkg = new PersistentPackage(rpm.getName());
+        String name = rpm.getName().replaceFirst("\\.rpm$", "").replaceAll("-[^-]*-[^-]*$", "");
+        PersistentPackage pkg = new PersistentPackage(name);
         try (ArchiveInputStream is = new RpmArchiveInputStream(rpm)) {
             ArchiveEntry entry;
             while ((entry = is.getNextEntry()) != null) {
                 if (!entry.isDirectory() && entry.getName().endsWith(".jar")) {
                     JarInputStream jarIs = new JarInputStream(is);
                     PersistentFileArtifact jar = processJar(jarIs,
-                            entry.getName());
+                            entry.getName().replaceFirst("^\\./", ""));
                     pkg.addFileArtifact(jar);
                 }
             }
@@ -83,7 +83,7 @@ public class DefaultDatabaseBuilder {
         while ((entry = is.getNextJarEntry()) != null) {
             if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
                 PersistentClassEntry classEntry = new PersistentClassEntry(
-                        entry.getName());
+                        entry.getName().replaceFirst("\\.class$", "").replaceAll("/", "."));
                 fileArtifact.addClass(classEntry);
             }
         }
