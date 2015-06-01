@@ -101,7 +101,12 @@ class Cli {
 
         String db_path = line.getOptionValue("database");
 
-        Database db = new DatabaseFactory().createDatabase(new File(db_path));
+        Database db;
+        if (db_path.startsWith("jdbc:")) {
+            db = new DatabaseFactory().createDatabase(db_path);
+        } else {
+            db = new DatabaseFactory().createDatabase(new File(db_path));
+        }
 
         switch (command) {
         case "build":
