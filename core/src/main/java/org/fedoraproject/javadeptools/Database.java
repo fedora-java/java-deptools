@@ -22,9 +22,9 @@ import java.util.Collection;
 public interface Database {
     public Collection<Package> getPackages();
     public Package getPackage(String packageName);
-    public Collection<Package> queryPackages(String packageNameGlob);
+    public Query<Package> queryPackages(String packageNameGlob);
     //public Collection<? extends FileArtifact> queryWhatRequires(String className);
-    public Collection<FileArtifact> queryFiles(String fileNameGlob);
-    public Collection<ClassEntry> queryClasses(String classNameGlob);
+    public Query<FileArtifact> queryFiles(String fileNameGlob);
+    public Query<ClassEntry> queryClasses(String classNameGlob);
     public void build(File path);
 }

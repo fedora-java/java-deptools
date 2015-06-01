@@ -12,13 +12,13 @@ object Application extends Controller {
 
   def db = {
     if (dbVal.get == null) {
-      dbVal.set(new DatabaseFactory().createDatabase(new File("/home/msimacek/git/java-deptools/db")))
+      dbVal.set(new DatabaseFactory().createDatabase("jdbc:h2:tcp://localhost/~/test"))
     }
     dbVal.get
   }
 
   def index = Action { implicit request =>
-    val content = request.getQueryString("q").map { q => db.queryClasses("%" + q + "%").asScala }
+    val content = request.getQueryString("q").map { q => db.queryClasses("%" + q + "%").getResults.asScala }
     Ok(views.html.index(content))
   }
 

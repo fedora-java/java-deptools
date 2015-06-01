@@ -117,8 +117,8 @@ class Cli {
             packages.forEach(p -> System.out.println(p.getName()));
             return;
         case "query":
-            db.queryClasses('%' + args.get(0) + '%').forEach(
-                    c -> printClassEntry(c));
+            db.queryClasses('%' + args.get(0) + '%').getResults()
+                    .forEach(c -> printClassEntry(c));
         }
 
         assert false;

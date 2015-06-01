@@ -24,6 +24,7 @@ import org.fedoraproject.javadeptools.ClassEntry;
 import org.fedoraproject.javadeptools.Database;
 import org.fedoraproject.javadeptools.FileArtifact;
 import org.fedoraproject.javadeptools.Package;
+import org.fedoraproject.javadeptools.Query;
 
 public class DefaultDatabase implements Database {
 
@@ -35,40 +36,34 @@ public class DefaultDatabase implements Database {
 
     @Override
     public Collection<Package> getPackages() {
-        return em.createQuery("from PersistentPackage",
-                Package.class).getResultList();
+        return em.createQuery("from PersistentPackage", Package.class)
+                .getResultList();
     }
 
     @Override
     public Package getPackage(String name) {
         return em
-                .createQuery("from PersistentPackage where name = ?1",
-                        Package.class).setParameter(1, name)
-                .getSingleResult();
+                .createQuery("from PersistentPackage where name = ?0",
+                        Package.class).setParameter(1, name).getSingleResult();
     }
 
     @Override
-    public Collection<Package> queryPackages(String packageNameGlob) {
-        return em
-                .createQuery("from PersistentPackage where name like ?1",
-                        Package.class).setParameter(1, packageNameGlob)
-                .getResultList();
+    public Query<Package> queryPackages(String packageNameGlob) {
+        return new DefaultQuery<>(em, Package.class,
+                "from PersistentPackage where name like ?0", packageNameGlob);
     }
 
     @Override
-    public Collection<FileArtifact> queryFiles(String fileNameGlob) {
-        return em
-                .createQuery("from PersistentFileArtifact where path like ?1",
-                        FileArtifact.class).setParameter(1, fileNameGlob)
-                .getResultList();
+    public Query<FileArtifact> queryFiles(String fileNameGlob) {
+        return new DefaultQuery<>(em, FileArtifact.class,
+                "from PersistentFileArtifact where path like ?0", fileNameGlob);
     }
 
     @Override
-    public Collection<ClassEntry> queryClasses(String classNameGlob) {
-        return em
-                .createQuery("from PersistentClassEntry where className like ?1",
-                        ClassEntry.class).setParameter(1, classNameGlob)
-                .getResultList();
+    public Query<ClassEntry> queryClasses(String classNameGlob) {
+        return new DefaultQuery<>(em, ClassEntry.class,
+                "from PersistentClassEntry where className like ?0",
+                classNameGlob);
     }
 
     @Override
