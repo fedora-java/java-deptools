@@ -26,16 +26,10 @@ case class Page[T](content: Iterable[T], currentPage: Int, totalCount: Int) {
 
 object Application extends Controller {
 
-  val dbVal = new ThreadLocal[Database];
-
-  def db = {
-    if (dbVal.get == null) {
-      dbVal.set(new DatabaseFactory().createDatabase("jdbc:h2:tcp://localhost/~/test"))
-    }
-    dbVal.get
-  }
+  lazy val dbFactory = new DatabaseFactory("jdbc:h2:tcp://localhost/~/test")
 
   def index = Action { implicit request =>
+    val db = dbFactory.createDatabase()
     try {
       val content = request.getQueryString("q").map { q =>
         val query = db.queryClasses("%" + q + "%")

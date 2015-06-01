@@ -18,26 +18,26 @@ package org.fedoraproject.javadeptools.impl;
 import java.io.File;
 import java.util.HashMap;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.fedoraproject.javadeptools.Database;
 
 public class DatabaseFactory {
-    private EntityManager createEntityManager(String url) {
+    private EntityManagerFactory emf;
+
+    public DatabaseFactory(String url) {
         HashMap<String, String> props = new HashMap<>();
         props.put("javax.persistence.jdbc.url", url);
-        EntityManagerFactory factory = Persistence.createEntityManagerFactory(
+        emf = Persistence.createEntityManagerFactory(
                 "org.fedoraproject.javadeptools", props);
-        return factory.createEntityManager();
     }
 
-    public Database createDatabase(String url) {
-        return new DefaultDatabase(createEntityManager(url));
+    public Database createDatabase() {
+        return new DefaultDatabase(emf.createEntityManager());
     }
 
-    public Database createDatabase(File file) {
-        return createDatabase("jdbc:h2:file:" + file.getAbsolutePath());
+    public DatabaseFactory(File file) {
+        this("jdbc:h2:file:" + file.getAbsolutePath());
     }
 }

@@ -103,9 +103,9 @@ class Cli {
 
         Database db;
         if (db_path.startsWith("jdbc:")) {
-            db = new DatabaseFactory().createDatabase(db_path);
+            db = new DatabaseFactory(db_path).createDatabase();
         } else {
-            db = new DatabaseFactory().createDatabase(new File(db_path));
+            db = new DatabaseFactory(new File(db_path)).createDatabase();
         }
 
         switch (command) {
