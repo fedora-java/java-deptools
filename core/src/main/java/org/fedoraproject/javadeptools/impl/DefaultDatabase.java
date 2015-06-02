@@ -44,7 +44,7 @@ public class DefaultDatabase implements Database {
     public Package getPackage(String name) {
         return em
                 .createQuery("from PersistentPackage where name = ?0",
-                        Package.class).setParameter(1, name).getSingleResult();
+                        Package.class).setParameter(0, name).getSingleResult();
     }
 
     @Override
