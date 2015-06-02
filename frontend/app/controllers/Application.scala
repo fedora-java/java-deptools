@@ -41,6 +41,8 @@ object Application extends Controller {
     }
   }
 
+  def about = Action(implicit request => Ok(views.html.about()))
+
   def packageDetail(name: String) = Action { implicit request =>
     val db = dbFactory.createDatabase()
     val pkg = db.getPackage(name)

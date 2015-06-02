@@ -1,16 +1,17 @@
 @import org.fedoraproject.javadeptools.ClassEntry
 @(page:Page[ClassEntry])
 <div>Showing results from @page.from to @page.to of total @page.totalCount</div>
-<table>
-	<tr>
-		<th>Class name</th>
-		<th>JAR path</th>
-		<th>Package name</th>
-	</tr>
-	@for(row <-page.content) {
-	<tr>
-		<td>@row.getFileArtifact.getPath</td>
-		<td>@row.getFileArtifact.getPkg.getName</td>
-	</tr>
-	}
+<table class="table table-condensed">
+    <tr>
+        <th>Class name</th>
+        <th>JAR path</th>
+        <th>Package name</th>
+    </tr>
+    @for(row <-page.content) {
+    <tr>
+        <td>@row.getClassName</td>
+        <td>@row.getFileArtifact.getPath</td>
+        <td>@row.getFileArtifact.getPkg.getName</td>
+    </tr>
+}
 </table>

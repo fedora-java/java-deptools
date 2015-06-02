@@ -1,0 +1,3 @@
+[submodule "bootstrap-fedora"]
+	path = bootstrap-fedora
+	url = https://github.com/ralphbean/bootstrap-fedora.git
