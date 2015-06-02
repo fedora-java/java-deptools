@@ -1,0 +1,16 @@
+@import org.fedoraproject.javadeptools.Package
+@(pkg: Package)
+@main(pkg.getName) {
+    <h2>Package - @pkg.getName</h2>
+    <h3>Contained file artifacts</h3>
+    <table>
+        <tr>
+            <th>File name</th>
+        </tr>
+        @for(jar <- pkg.getFileArtifacts) {
+            <tr>
+                <td>@jar.getPath</td>
+            </tr>
+        }
+    </table>
+}

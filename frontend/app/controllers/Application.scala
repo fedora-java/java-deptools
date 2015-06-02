@@ -40,4 +40,10 @@ object Application extends Controller {
       case _: NumberFormatException => BadRequest
     }
   }
+
+  def packageDetail(name: String) = Action { implicit request =>
+    val db = dbFactory.createDatabase()
+    val pkg = db.getPackage(name)
+    if (pkg == null) NotFound else Ok(views.html.package_detail(pkg))
+  }
 }

@@ -2,10 +2,6 @@
 @(page: Option[Page[ClassEntry]])
 
 @main("Search for Java classes in Fedora") {
-    <form method="GET">
-        <input type="text" name="q"/>
-        <button type="submit">Search</button>
-    </form>
     @page match {
         case Some(r) => { @results(r) }
         case None => {}
