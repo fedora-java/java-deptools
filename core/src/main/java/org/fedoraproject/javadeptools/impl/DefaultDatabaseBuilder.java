@@ -18,6 +18,7 @@ package org.fedoraproject.javadeptools.impl;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
@@ -34,12 +35,17 @@ public class DefaultDatabaseBuilder {
         this.em = em;
     }
 
-    public void build(File path) {
+    public void build(Collection<File> paths, boolean purge) {
         List<File> rpms = new ArrayList<>();
-        findRpms(path, rpms);
-        for (File rpm : rpms) {
-            addRpm(rpm);
+        paths.forEach(path -> findRpms(path, rpms));
+        em.getTransaction().begin();
+        if (purge) {
+            em.createQuery("delete from PersistentClassEntry").executeUpdate();
+            em.createQuery("delete from PersistentFileArtifact").executeUpdate();
+            em.createQuery("delete from PersistentPackage").executeUpdate();
         }
+        rpms.forEach(this::addRpm);
+        em.getTransaction().commit();
     }
 
     private void findRpms(File path, List<File> rpms) {
@@ -55,24 +61,27 @@ public class DefaultDatabaseBuilder {
     }
 
     public void addRpm(File rpm) {
-        em.getTransaction().begin();
-        String name = rpm.getName().replaceFirst("\\.rpm$", "").replaceAll("-[^-]*-[^-]*$", "");
+        String name = rpm.getName().replaceFirst("\\.rpm$", "")
+                .replaceAll("-[^-]*-[^-]*$", "");
         PersistentPackage pkg = new PersistentPackage(name);
         try (ArchiveInputStream is = new RpmArchiveInputStream(rpm)) {
             ArchiveEntry entry;
             while ((entry = is.getNextEntry()) != null) {
                 if (!entry.isDirectory() && entry.getName().endsWith(".jar")) {
                     JarInputStream jarIs = new JarInputStream(is);
-                    PersistentFileArtifact jar = processJar(jarIs,
-                            entry.getName().replaceFirst("^\\./", ""));
+                    PersistentFileArtifact jar = processJar(jarIs, entry
+                            .getName().replaceFirst("^\\./", ""));
                     pkg.addFileArtifact(jar);
                 }
             }
         } catch (IOException e) {
             // TODO handle
         }
+        // TODO cascade
+        // em.createQuery("delete from PersistentPackage where name = ?0")
+        // .setParameter(0, name).executeUpdate();
         em.persist(pkg);
-        em.getTransaction().commit();
+        em.flush();
     }
 
     private PersistentFileArtifact processJar(JarInputStream is, String jarName)
@@ -83,7 +92,8 @@ public class DefaultDatabaseBuilder {
         while ((entry = is.getNextJarEntry()) != null) {
             if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
                 PersistentClassEntry classEntry = new PersistentClassEntry(
-                        entry.getName().replaceFirst("\\.class$", "").replaceAll("/", "."));
+                        entry.getName().replaceFirst("\\.class$", "")
+                                .replaceAll("/", "."));
                 fileArtifact.addClass(classEntry);
             }
         }

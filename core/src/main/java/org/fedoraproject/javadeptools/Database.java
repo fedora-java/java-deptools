@@ -26,5 +26,5 @@ public interface Database {
     //public Collection<? extends FileArtifact> queryWhatRequires(String className);
     public Query<FileArtifact> queryFiles(String fileNameGlob);
     public Query<ClassEntry> queryClasses(String classNameGlob);
-    public void build(File path);
+    public void build(Collection<File> path, boolean purge);
 }

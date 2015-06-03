@@ -19,6 +19,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -110,7 +111,7 @@ class Cli {
 
         switch (command) {
         case "build":
-            db.build(new File(args.get(0)));
+            db.build(args.stream().map(File::new).collect(Collectors.toList()), true);
             return;
         case "list":
             Collection<Package> packages = db.getPackages();
@@ -118,7 +119,7 @@ class Cli {
             return;
         case "query":
             db.queryClasses('%' + args.get(0) + '%').getResults()
-                    .forEach(c -> printClassEntry(c));
+                    .forEach(this::printClassEntry);
         }
 
         assert false;

@@ -67,8 +67,8 @@ public class DefaultDatabase implements Database {
     }
 
     @Override
-    public void build(File path) {
+    public void build(Collection<File> paths, boolean purge) {
         DefaultDatabaseBuilder builder = new DefaultDatabaseBuilder(em);
-        builder.build(path);
+        builder.build(paths, purge);
     }
 }
