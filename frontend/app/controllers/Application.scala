@@ -10,9 +10,8 @@ import play.api.mvc.Request
 
 object Page {
   val itemsPerPage = 100
-  def apply[T](query: Query[T])(implicit request: Request[Any]) = {
+  def apply[T](query: Query[T], currentPage: Int)(implicit request: Request[Any]) = {
     val pages = query.getCount / itemsPerPage
-    val currentPage = request.getQueryString("page").map(_.toInt).getOrElse(1)
     val total = query.getCount
     query.setLimits((currentPage - 1) * itemsPerPage, itemsPerPage)
     new Page(query.getResults.asScala, currentPage, total)
@@ -22,23 +21,23 @@ object Page {
 case class Page[T](content: Iterable[T], currentPage: Int, totalCount: Int) {
   val from = (currentPage - 1) * Page.itemsPerPage
   val to = from + content.size
+  val maxPage = totalCount / Page.itemsPerPage
 }
 
 object Application extends Controller {
 
   lazy val dbFactory = new DatabaseFactory("jdbc:h2:tcp://localhost/~/test")
 
-  def index = Action { implicit request =>
+  def index(page: Int, q: String) = Action { implicit request =>
     val db = dbFactory.createDatabase()
-    try {
-      val content = request.getQueryString("q").map { q =>
-        val query = db.queryClasses("%" + q + "%")
-        Page(query)
-      }
-      Ok(views.html.index(content))
-    } catch {
-      case _: NumberFormatException => BadRequest
+    if (q == "") {
+      Ok(views.html.index(None))
+    } else {
+      val query = db.queryClasses("%" + q + "%")
+      val content = Page(query, page)
+      Ok(views.html.index(Some(content)))
     }
+
   }
 
   def about = Action(implicit request => Ok(views.html.about()))
