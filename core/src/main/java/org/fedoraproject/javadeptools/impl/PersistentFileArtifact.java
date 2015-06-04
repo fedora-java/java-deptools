@@ -23,7 +23,6 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -32,6 +31,7 @@ import javax.persistence.Table;
 
 import org.fedoraproject.javadeptools.ClassEntry;
 import org.fedoraproject.javadeptools.FileArtifact;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "fileArtifact")
@@ -41,7 +41,8 @@ public class PersistentFileArtifact implements FileArtifact {
     private Set<PersistentClassEntry> classes = new HashSet<PersistentClassEntry>();
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(generator = "gen")
+    @GenericGenerator(name = "gen", strategy = "increment")
     private Long id;
     private String path;
 

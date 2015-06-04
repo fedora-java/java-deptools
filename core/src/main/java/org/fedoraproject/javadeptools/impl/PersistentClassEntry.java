@@ -17,13 +17,14 @@ package org.fedoraproject.javadeptools.impl;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import org.fedoraproject.javadeptools.ClassEntry;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 
 @Entity
 @Table(name = "classEntry")
@@ -36,7 +37,8 @@ public class PersistentClassEntry implements ClassEntry {
     private PersistentFileArtifact fileArtifact;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(generator = "gen")
+    @GenericGenerator(name = "gen", strategy = "increment")
     private Long id;
 
     public PersistentClassEntry() {

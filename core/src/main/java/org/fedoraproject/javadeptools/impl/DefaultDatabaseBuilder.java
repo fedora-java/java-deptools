@@ -88,6 +88,7 @@ public class DefaultDatabaseBuilder {
         // .setParameter(0, name).executeUpdate();
         em.persist(pkg);
         em.flush();
+        em.clear();
     }
 
     private PersistentFileArtifact processJar(JarInputStream is, String jarName)

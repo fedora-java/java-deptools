@@ -23,13 +23,13 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.fedoraproject.javadeptools.FileArtifact;
 import org.fedoraproject.javadeptools.Package;
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "package")
@@ -39,7 +39,8 @@ public class PersistentPackage implements Package {
     private Set<PersistentFileArtifact> fileArtifacts = new HashSet<PersistentFileArtifact>();
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(generator = "gen")
+    @GenericGenerator(name = "gen", strategy = "increment")
     private Long id;
 
     private String name;
