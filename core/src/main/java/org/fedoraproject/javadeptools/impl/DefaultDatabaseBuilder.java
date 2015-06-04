@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
 
@@ -35,7 +36,11 @@ public class DefaultDatabaseBuilder {
         this.em = em;
     }
 
+    private final static Logger logger = Logger
+            .getLogger(DefaultDatabaseBuilder.class.getName());
+
     public void build(Collection<File> paths, boolean purge) {
+        logger.info("Building from paths: " + paths);
         List<File> rpms = new ArrayList<>();
         paths.forEach(path -> findRpms(path, rpms));
         em.getTransaction().begin();
@@ -61,6 +66,7 @@ public class DefaultDatabaseBuilder {
     }
 
     public void addRpm(File rpm) {
+        logger.info("Adding: " + rpm);
         String name = rpm.getName().replaceFirst("\\.rpm$", "")
                 .replaceAll("-[^-]*-[^-]*$", "");
         PersistentPackage pkg = new PersistentPackage(name);
