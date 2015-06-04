@@ -81,8 +81,8 @@ public class DefaultDatabaseBuilder {
                     pkg.addFileArtifact(jar);
                 }
             }
-        } catch (IOException e) {
-            // TODO handle
+        } catch (Exception e) {
+            logger.warning("Cannot process " + rpm);
         }
         // TODO cascade
         // em.createQuery("delete from PersistentPackage where name = ?0")
