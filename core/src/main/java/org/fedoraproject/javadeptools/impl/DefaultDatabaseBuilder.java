@@ -46,7 +46,8 @@ public class DefaultDatabaseBuilder {
         em.getTransaction().begin();
         if (purge) {
             em.createQuery("delete from PersistentClassEntry").executeUpdate();
-            em.createQuery("delete from PersistentFileArtifact").executeUpdate();
+            em.createQuery("delete from PersistentFileArtifact")
+                    .executeUpdate();
             em.createQuery("delete from PersistentPackage").executeUpdate();
         }
         rpms.forEach(this::addRpm);
@@ -97,7 +98,8 @@ public class DefaultDatabaseBuilder {
         PersistentFileArtifact fileArtifact = new PersistentFileArtifact(
                 jarName);
         while ((entry = is.getNextJarEntry()) != null) {
-            if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
+            if (!entry.isDirectory() && entry.getName().endsWith(".class")
+                    && !entry.getName().contains("$")) {
                 PersistentClassEntry classEntry = new PersistentClassEntry(
                         entry.getName().replaceFirst("\\.class$", "")
                                 .replaceAll("/", "."));
