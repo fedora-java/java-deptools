@@ -10,6 +10,5 @@ libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.4.187",
   "org.hibernate" % "hibernate-core" % "5.0.0.Beta2",
   "org.hibernate" % "hibernate-entitymanager" % "5.0.0.Beta2",
-  "junit" % "junit" % "4.12",
-  "org.apache.logging.log4j" % "log4j-core" % "2.3"
+  "junit" % "junit" % "4.12"
 )
