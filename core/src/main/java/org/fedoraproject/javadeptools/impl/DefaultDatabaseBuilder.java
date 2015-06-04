@@ -54,14 +54,14 @@ public class DefaultDatabaseBuilder {
     }
 
     private void findRpms(File path, List<File> rpms) {
-        if (path.isFile() && path.getName().endsWith(".rpm")) {
-            rpms.add(path);
-        } else if (path.isDirectory()) {
+        if (path.isDirectory()) {
             // TODO error handling
             File[] fileList = path.listFiles();
             for (File file : fileList) {
                 findRpms(file, rpms);
             }
+        } else if (path.getName().endsWith(".rpm")) {
+            rpms.add(path);
         }
     }
 
