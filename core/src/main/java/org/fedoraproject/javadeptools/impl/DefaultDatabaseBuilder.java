@@ -28,6 +28,7 @@ import javax.persistence.EntityManager;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.fedoraproject.javadeptools.rpm.RpmArchiveInputStream;
 
 public class DefaultDatabaseBuilder {
     private EntityManager em;
@@ -71,7 +72,7 @@ public class DefaultDatabaseBuilder {
         String name = rpm.getName().replaceFirst("\\.rpm$", "")
                 .replaceAll("-[^-]*-[^-]*$", "");
         PersistentPackage pkg = new PersistentPackage(name);
-        try (ArchiveInputStream is = new RpmArchiveInputStream(rpm)) {
+        try (ArchiveInputStream is = new RpmArchiveInputStream(rpm.toPath())) {
             ArchiveEntry entry;
             while ((entry = is.getNextEntry()) != null) {
                 if (!entry.isDirectory() && entry.getName().endsWith(".jar")) {
