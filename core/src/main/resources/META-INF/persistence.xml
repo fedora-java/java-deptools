@@ -8,7 +8,9 @@
       <property name="javax.persistence.jdbc.user" value="sa"/>
       <property name="javax.persistence.jdbc.password" value=""/>
       <property name="hibernate.hbm2ddl.auto" value="update"/>
-      <property name="hibernate.jdbc.batch_size" value="100"/>
+      <property name="hibernate.jdbc.batch_size" value="1000"/>
+      <property name="hibernate.jdbc.batch_versioned_data" value="true"/>
+      <property name="hibernate.order_inserts" value="true"/>
     </properties>
   </persistence-unit>
 
