@@ -7,6 +7,7 @@ import org.fedoraproject.javadeptools.impl.DatabaseFactory
 import org.fedoraproject.javadeptools.Database
 import org.fedoraproject.javadeptools.Query
 import play.api.mvc.Request
+import play.api.Play
 
 object Page {
   val itemsPerPage = 100
@@ -26,7 +27,7 @@ case class Page[T](content: Iterable[T], currentPage: Int, totalCount: Int) {
 
 object Application extends Controller {
 
-  lazy val dbFactory = new DatabaseFactory("jdbc:h2:tcp://localhost/~/test")
+  lazy val dbFactory = new DatabaseFactory(Play.current.configuration.getString("java-deptools.db.url").get)
 
   def index(page: Int, q: String) = Action { implicit request =>
     val db = dbFactory.createDatabase()
