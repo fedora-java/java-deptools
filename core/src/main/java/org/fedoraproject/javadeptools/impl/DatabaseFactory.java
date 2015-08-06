@@ -34,7 +34,7 @@ public class DatabaseFactory {
     }
 
     public Database createDatabase() {
-        return new DefaultDatabase(emf.createEntityManager());
+        return new DefaultDatabase(emf);
     }
 
     public DatabaseFactory(File file) {

@@ -20,21 +20,26 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.logging.Logger;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.fedoraproject.javadeptools.rpm.RpmArchiveInputStream;
 
 public class DefaultDatabaseBuilder {
-    private EntityManager em;
+    private EntityManagerFactory emf;
+    private BlockingQueue<PersistentPackage> queue = new ArrayBlockingQueue<>(
+            20);
 
-    public DefaultDatabaseBuilder(EntityManager em) {
-        this.em = em;
+    public DefaultDatabaseBuilder(EntityManagerFactory emf) {
+        this.emf = emf;
     }
 
     private final static Logger logger = Logger
@@ -44,15 +49,39 @@ public class DefaultDatabaseBuilder {
         logger.info("Building from paths: " + paths);
         List<File> rpms = new ArrayList<>();
         paths.forEach(path -> findRpms(path, rpms));
-        em.getTransaction().begin();
-        if (purge) {
-            em.createQuery("delete from PersistentClassEntry").executeUpdate();
-            em.createQuery("delete from PersistentFileArtifact")
-                    .executeUpdate();
-            em.createQuery("delete from PersistentPackage").executeUpdate();
-        }
-        rpms.forEach(this::addRpm);
-        em.getTransaction().commit();
+        Thread thread = new Thread(
+                () -> {
+                    EntityManager em = emf.createEntityManager();
+                    em.getTransaction().begin();
+                    if (purge) {
+                        em.createQuery("delete from PersistentPackage")
+                                .executeUpdate();
+                    }
+                    while (true) {
+                        PersistentPackage pkg;
+                        try {
+                            pkg = queue.take();
+                        } catch (InterruptedException e) {
+                            pkg = queue.peek();
+                            while (pkg != null) {
+                                em.persist(pkg);
+                                pkg = queue.peek();
+                            }
+                            em.getTransaction().commit();
+                            logger.info("Packages persisted");
+                            break;
+                        }
+                        em.persist(pkg);
+                        if (queue.peek() == null) {
+                            em.flush();
+                            em.clear();
+                        }
+                    }
+                    em.getTransaction().commit();
+                });
+        thread.start();
+        rpms.parallelStream().forEach(this::addRpm);
+        thread.interrupt();
     }
 
     private void findRpms(File path, List<File> rpms) {
@@ -85,12 +114,10 @@ public class DefaultDatabaseBuilder {
         } catch (Exception e) {
             logger.warning("Cannot process " + rpm);
         }
-        // TODO cascade
-        // em.createQuery("delete from PersistentPackage where name = ?0")
-        // .setParameter(0, name).executeUpdate();
-        em.persist(pkg);
-        em.flush();
-        em.clear();
+        try {
+            queue.put(pkg);
+        } catch (InterruptedException e) {
+        }
     }
 
     private PersistentFileArtifact processJar(JarInputStream is, String jarName)
