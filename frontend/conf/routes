@@ -3,8 +3,8 @@
 # ~~~~
 
 GET     /                           controllers.Application.index(page: Int = 1, q: String ?= "")
-GET     /:page                      controllers.Application.index(page: Int, q: String ?= "")
 GET     /about                      controllers.Application.about
+GET     /:page                      controllers.Application.index(page: Int, q: String ?= "")
 GET     /package/:name              controllers.Application.packageDetail(name: String)
 
 # Map static resources from the /public folder to the /assets URL path
