@@ -32,12 +32,15 @@ import javax.persistence.Table;
 import org.fedoraproject.javadeptools.ClassEntry;
 import org.fedoraproject.javadeptools.FileArtifact;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "fileArtifact")
 public class PersistentFileArtifact implements FileArtifact {
 
     @OneToMany(mappedBy = "fileArtifact", cascade = CascadeType.ALL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<PersistentClassEntry> classes = new HashSet<PersistentClassEntry>();
 
     @Id

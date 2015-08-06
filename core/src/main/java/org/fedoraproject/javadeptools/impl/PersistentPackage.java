@@ -30,12 +30,15 @@ import javax.persistence.Table;
 import org.fedoraproject.javadeptools.FileArtifact;
 import org.fedoraproject.javadeptools.Package;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "package")
 public class PersistentPackage implements Package {
 
     @OneToMany(mappedBy = "pkg", cascade = CascadeType.ALL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<PersistentFileArtifact> fileArtifacts = new HashSet<PersistentFileArtifact>();
 
     @Id
