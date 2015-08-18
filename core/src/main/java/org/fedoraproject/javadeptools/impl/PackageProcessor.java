@@ -38,9 +38,18 @@ public class PackageProcessor {
         while ((entry = is.getNextJarEntry()) != null) {
             if (!entry.isDirectory() && entry.getName().endsWith(".class")
                     && !entry.getName().contains("$")) {
+                String[] nameParts = entry.getName()
+                        .replaceFirst("\\.class$", "").split("/");
+                StringBuilder packageNameBuilder = new StringBuilder();
+                for (int i = 0; i < nameParts.length - 1; i++)
+                    packageNameBuilder.append(nameParts[i]).append('.');
+                if (nameParts.length > 1)
+                    packageNameBuilder
+                            .deleteCharAt(packageNameBuilder.length() - 1);
+                String packageName = packageNameBuilder.toString();
+                String className = nameParts[nameParts.length - 1];
                 PersistentClassEntry classEntry = new PersistentClassEntry(
-                        entry.getName().replaceFirst("\\.class$", "")
-                                .replaceAll("/", "."));
+                        packageName, className);
                 fileArtifact.addClass(classEntry);
             }
         }

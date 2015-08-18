@@ -20,6 +20,8 @@ public interface ClassEntry {
 
     public abstract String getClassName();
 
+    public abstract String getPackageName();
+
     public abstract FileArtifact getFileArtifact();
 
 }

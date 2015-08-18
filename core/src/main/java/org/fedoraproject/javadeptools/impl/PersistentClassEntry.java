@@ -31,6 +31,7 @@ import org.hibernate.annotations.Parameter;
 public class PersistentClassEntry implements ClassEntry {
 
     private String className;
+    private String packageName;
 
     @ManyToOne
     @JoinColumn(name = "fileArtifactId")
@@ -44,7 +45,8 @@ public class PersistentClassEntry implements ClassEntry {
     public PersistentClassEntry() {
     }
 
-    public PersistentClassEntry(String className) {
+    public PersistentClassEntry(String packageName, String className) {
+        this.packageName = packageName;
         this.className = className;
     }
 
@@ -72,5 +74,10 @@ public class PersistentClassEntry implements ClassEntry {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    public String getPackageName() {
+        return packageName;
     }
 }
