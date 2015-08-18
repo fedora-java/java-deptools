@@ -18,13 +18,20 @@ public class PackageProcessor {
             ArchiveEntry entry;
             while ((entry = is.getNextEntry()) != null) {
                 if (!entry.isDirectory() && entry.getName().endsWith(".jar")) {
-                    JarInputStream jarIs = new JarInputStream(is);
-                    PersistentFileArtifact jar = processJar(jarIs, entry
-                            .getName().replaceFirst("^\\./", ""));
-                    pkg.addFileArtifact(jar);
+                    try {
+                        JarInputStream jarIs = new JarInputStream(is);
+                        PersistentFileArtifact jar = processJar(jarIs, entry
+                                .getName().replaceFirst("^\\./", ""));
+                        pkg.addFileArtifact(jar);
+
+                        // JAR processing throws SecurityException on invalid
+                        // manifests
+                    } catch (SecurityException e) {
+                        // TODO
+                    }
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             // TODO
         }
         return pkg;

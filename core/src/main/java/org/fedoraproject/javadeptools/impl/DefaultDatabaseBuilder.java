@@ -16,27 +16,17 @@
 package org.fedoraproject.javadeptools.impl;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.fedoraproject.javadeptools.rpm.RpmArchiveInputStream;
-
 public class DefaultDatabaseBuilder {
     private EntityManagerFactory emf;
-    private BlockingQueue<PersistentPackage> queue = new ArrayBlockingQueue<>(
-            20);
 
     public DefaultDatabaseBuilder(EntityManagerFactory emf) {
         this.emf = emf;
@@ -49,39 +39,21 @@ public class DefaultDatabaseBuilder {
         logger.info("Building from paths: " + paths);
         List<File> rpms = new ArrayList<>();
         paths.forEach(path -> findRpms(path, rpms));
-        Thread thread = new Thread(
-                () -> {
-                    EntityManager em = emf.createEntityManager();
-                    em.getTransaction().begin();
-                    if (purge) {
-                        em.createQuery("delete from PersistentPackage")
-                                .executeUpdate();
-                    }
-                    while (true) {
-                        PersistentPackage pkg;
-                        try {
-                            pkg = queue.take();
-                        } catch (InterruptedException e) {
-                            pkg = queue.peek();
-                            while (pkg != null) {
-                                em.persist(pkg);
-                                pkg = queue.peek();
-                            }
-                            em.getTransaction().commit();
-                            logger.info("Packages persisted");
-                            break;
-                        }
-                        em.persist(pkg);
-                        if (queue.peek() == null) {
-                            em.flush();
-                            em.clear();
-                        }
-                    }
-                    em.getTransaction().commit();
-                });
-        thread.start();
-        rpms.parallelStream().forEach(this::addRpm);
-        thread.interrupt();
+        List<Long> pkgs = rpms.parallelStream().map(rpm -> {
+            PersistentPackage pkg = new PackageProcessor().processPackage(rpm);
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            em.persist(pkg);
+            em.getTransaction().commit();
+            return pkg.getId();
+        }).collect(Collectors.toList());
+        if (purge) {
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            em.createQuery("delete from PersistentPackage where id not in ?0")
+                    .setParameter(0, pkgs).executeUpdate();
+            em.getTransaction().commit();
+        }
     }
 
     private void findRpms(File path, List<File> rpms) {
@@ -94,46 +66,5 @@ public class DefaultDatabaseBuilder {
         } else if (path.getName().endsWith(".rpm")) {
             rpms.add(path);
         }
-    }
-
-    public void addRpm(File rpm) {
-        logger.info("Adding: " + rpm);
-        String name = rpm.getName().replaceFirst("\\.rpm$", "")
-                .replaceAll("-[^-]*-[^-]*$", "");
-        PersistentPackage pkg = new PersistentPackage(name);
-        try (ArchiveInputStream is = new RpmArchiveInputStream(rpm.toPath())) {
-            ArchiveEntry entry;
-            while ((entry = is.getNextEntry()) != null) {
-                if (!entry.isDirectory() && entry.getName().endsWith(".jar")) {
-                    JarInputStream jarIs = new JarInputStream(is);
-                    PersistentFileArtifact jar = processJar(jarIs, entry
-                            .getName().replaceFirst("^\\./", ""));
-                    pkg.addFileArtifact(jar);
-                }
-            }
-        } catch (Exception e) {
-            logger.warning("Cannot process " + rpm);
-        }
-        try {
-            queue.put(pkg);
-        } catch (InterruptedException e) {
-        }
-    }
-
-    private PersistentFileArtifact processJar(JarInputStream is, String jarName)
-            throws IOException {
-        JarEntry entry;
-        PersistentFileArtifact fileArtifact = new PersistentFileArtifact(
-                jarName);
-        while ((entry = is.getNextJarEntry()) != null) {
-            if (!entry.isDirectory() && entry.getName().endsWith(".class")
-                    && !entry.getName().contains("$")) {
-                PersistentClassEntry classEntry = new PersistentClassEntry(
-                        entry.getName().replaceFirst("\\.class$", "")
-                                .replaceAll("/", "."));
-                fileArtifact.addClass(classEntry);
-            }
-        }
-        return fileArtifact;
     }
 }

@@ -24,7 +24,6 @@ import javax.persistence.Table;
 
 import org.fedoraproject.javadeptools.ClassEntry;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
 
 @Entity
 @Table(name = "classEntry")
@@ -79,5 +78,9 @@ public class PersistentClassEntry implements ClassEntry {
     @Override
     public String getPackageName() {
         return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 }
