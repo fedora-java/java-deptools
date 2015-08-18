@@ -11,11 +11,15 @@ import play.api.Play
 
 object Page {
   val itemsPerPage = 100
-  def apply[T](query: Query[T], currentPage: Int)(implicit request: Request[Any]) = {
+  def create[T](query: Query[T], currentPage: Int)(implicit request: Request[Any]) = {
     val pages = query.getCount / itemsPerPage
     val total = query.getCount
-    query.setLimits((currentPage - 1) * itemsPerPage, itemsPerPage)
-    new Page(query.getResults.asScala, currentPage, total)
+    if (currentPage < 1 || currentPage > pages) {
+      None
+    } else {
+      query.setLimits((currentPage - 1) * itemsPerPage, itemsPerPage)
+      Some(new Page(query.getResults.asScala, currentPage, total))
+    }
   }
 }
 
@@ -35,8 +39,8 @@ object Application extends Controller {
       Ok(views.html.index(None))
     } else {
       val query = db.queryClasses("%" + q + "%")
-      val content = Page(query, page)
-      Ok(views.html.index(Some(content)))
+      val content = Page.create(query, page)
+      Ok(views.html.index(content))
     }
 
   }
