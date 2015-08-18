@@ -20,12 +20,13 @@
 }
 <table id="class-table" class="table table-condensed">
     <tr>
-        <th>Class name</th>
+        <th colspan="2">Java class</th>
         <th>JAR path</th>
         <th>Package name</th>
     </tr>
     @for(row <-page.content) {
     <tr>
+        <td>@if(row.getPackageName){ @(row.getPackageName). }</td>
         <td>@row.getClassName</td>
         <td>@row.getFileArtifact.getPath</td>
         <td>@row.getFileArtifact.getPkg.getName</td>
