@@ -65,7 +65,7 @@ public class DefaultDatabase implements Database {
     @Override
     public Query<ClassEntry> queryClasses(String classNameGlob) {
         return new DefaultQuery<>(em, ClassEntry.class,
-                "from PersistentClassEntry where className like ?0",
+                "from PersistentClassEntry where concat(packageName, '.', className) like ?0",
                 classNameGlob);
     }
 
