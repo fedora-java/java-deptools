@@ -12,7 +12,7 @@ import play.api.Play
 object Page {
   val itemsPerPage = 100
   def create[T](query: Query[T], currentPage: Int)(implicit request: Request[Any]) = {
-    val pages = query.getCount / itemsPerPage
+    val pages = query.getCount / itemsPerPage + 1
     val total = query.getCount
     if (currentPage < 1 || currentPage > pages) {
       None
