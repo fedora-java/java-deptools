@@ -23,11 +23,10 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 
-public class DefaultDatabaseBuilder {
-    private EntityManagerFactory emf;
+import org.fedoraproject.javadeptools.DatabaseBuilder;
 
+public class DefaultDatabaseBuilder implements DatabaseBuilder {
     public DefaultDatabaseBuilder(EntityManagerFactory emf) {
         this.emf = emf;
     }

@@ -15,11 +15,9 @@
  */
 package org.fedoraproject.javadeptools.impl;
 
-import java.io.File;
 import java.util.Collection;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 
 import org.fedoraproject.javadeptools.ClassEntry;
 import org.fedoraproject.javadeptools.Database;
@@ -30,11 +28,9 @@ import org.fedoraproject.javadeptools.Query;
 public class DefaultDatabase implements Database {
 
     private EntityManager em;
-    private EntityManagerFactory emf;
 
-    public DefaultDatabase(EntityManagerFactory emf) {
-        this.emf = emf;
-        this.em = emf.createEntityManager();
+    public DefaultDatabase(EntityManager em) {
+        this.em = em;
     }
 
     @Override
@@ -64,14 +60,11 @@ public class DefaultDatabase implements Database {
 
     @Override
     public Query<ClassEntry> queryClasses(String classNameGlob) {
-        return new DefaultQuery<>(em, ClassEntry.class,
+        return new DefaultQuery<>(
+                em,
+                ClassEntry.class,
                 "from PersistentClassEntry where concat(packageName, '.', className) like ?0",
                 classNameGlob);
     }
 
-    @Override
-    public void build(Collection<File> paths, boolean purge) {
-        DefaultDatabaseBuilder builder = new DefaultDatabaseBuilder(emf);
-        builder.build(paths, purge);
-    }
 }
