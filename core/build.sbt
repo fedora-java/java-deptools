@@ -13,5 +13,6 @@ libraryDependencies ++= Seq(
   "org.hibernate" % "hibernate-core" % "5.0.0.Beta2",
   "org.hibernate" % "hibernate-entitymanager" % "5.0.0.Beta2",
   "junit" % "junit" % "4.12",
+  "com.google.inject" % "guice" % "4.0",
   "org.fedoraproject.javadeptools" % "java-deptools-native" % "1.0.0-SNAPSHOT"
 )
