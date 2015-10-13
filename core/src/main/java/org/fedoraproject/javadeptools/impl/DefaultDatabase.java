@@ -17,6 +17,7 @@ package org.fedoraproject.javadeptools.impl;
 
 import java.util.Collection;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import org.fedoraproject.javadeptools.ClassEntry;
@@ -29,6 +30,7 @@ public class DefaultDatabase implements Database {
 
     private EntityManager em;
 
+    @Inject
     public DefaultDatabase(EntityManager em) {
         this.em = em;
     }

@@ -18,7 +18,9 @@ package org.fedoraproject.javadeptools.cli;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
@@ -29,8 +31,12 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.fedoraproject.javadeptools.ClassEntry;
 import org.fedoraproject.javadeptools.Database;
+import org.fedoraproject.javadeptools.DatabaseBuilder;
 import org.fedoraproject.javadeptools.Package;
-import org.fedoraproject.javadeptools.impl.DatabaseFactory;
+import org.fedoraproject.javadeptools.impl.JavaDeptoolsModule;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 class Cli {
     private final CommandLine line;
@@ -102,16 +108,24 @@ class Cli {
 
         String db_path = line.getOptionValue("database");
 
-        Database db;
-        if (db_path.startsWith("jdbc:")) {
-            db = new DatabaseFactory(db_path).createDatabase();
-        } else {
-            db = new DatabaseFactory(new File(db_path)).createDatabase();
+        if (!db_path.startsWith("jdbc:")) {
+            db_path = "jdbc:h2:file:" + new File(db_path).getAbsolutePath();
         }
+
+        Map<String, String> dbProps = new HashMap<>();
+        dbProps.put("javax.persistence.jdbc.url", db_path);
+        Injector injector = Guice
+                .createInjector(new JavaDeptoolsModule(dbProps));
+        Database db = injector.getInstance(Database.class);
 
         switch (command) {
         case "build":
-            db.build(args.stream().map(File::new).collect(Collectors.toList()), true);
+            DatabaseBuilder dbBuilder = injector
+                    .getInstance(DatabaseBuilder.class);
+            // TODO collection name
+            dbBuilder.build(
+                    args.stream().map(File::new).collect(Collectors.toList()),
+                    "primary");
             return;
         case "list":
             Collection<Package> packages = db.getPackages();
