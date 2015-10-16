@@ -7,12 +7,10 @@ import javax.persistence.TypedQuery;
 
 import org.fedoraproject.javadeptools.Query;
 
-public class DefaultQuery<T> implements Query<T> {
+public class DefaultQuery<T> extends AbstractQuery<T> {
     private EntityManager em;
     private String hql;
     private Object[] parameters;
-    private int limit = 0;
-    private int offset = 0;
     private Class<T> clazz;
 
     public DefaultQuery(EntityManager em, Class<T> clazz, String hql,
@@ -24,7 +22,7 @@ public class DefaultQuery<T> implements Query<T> {
     }
 
     @Override
-    public List<T> getResults() {
+    public List<T> getResults(int offset, int limit) {
         TypedQuery<T> q = em.createQuery(hql, clazz);
         setQueryParameters(q);
         return q.setFirstResult(offset).setMaxResults(limit).getResultList();
@@ -34,13 +32,6 @@ public class DefaultQuery<T> implements Query<T> {
         for (int i = 0; i < parameters.length; i++) {
             q.setParameter(i, parameters[i]);
         }
-    }
-
-    @Override
-    public Query<T> setLimits(int offset, int limit) {
-        this.offset = offset;
-        this.limit = limit;
-        return this;
     }
 
     @Override

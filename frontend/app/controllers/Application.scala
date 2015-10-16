@@ -17,8 +17,7 @@ object Page {
     if (currentPage < 1 || currentPage > pages) {
       None
     } else {
-      query.setLimits((currentPage - 1) * itemsPerPage, itemsPerPage)
-      Some(new Page(query.getResults.asScala, currentPage, total))
+      Some(new Page(query.getResults((currentPage - 1) * itemsPerPage, itemsPerPage).asScala, currentPage, total))
     }
   }
 }
