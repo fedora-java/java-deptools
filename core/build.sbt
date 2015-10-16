@@ -12,6 +12,7 @@ libraryDependencies ++= Seq(
   "com.h2database" % "h2" % "1.4.187",
   "org.hibernate" % "hibernate-core" % "5.0.0.Beta2",
   "org.hibernate" % "hibernate-entitymanager" % "5.0.0.Beta2",
+  "org.hibernate" % "hibernate-jpamodelgen" % "5.0.2.Final",
   "junit" % "junit" % "4.12" % "test",
   "com.novocode" % "junit-interface" % "0.10" % "test",
   "com.google.inject" % "guice" % "4.0",
