@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fedoraproject.javadeptools.impl;
+package org.fedoraproject.javadeptools.model;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,19 +25,17 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.fedoraproject.javadeptools.FileArtifact;
-import org.fedoraproject.javadeptools.Package;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table(name = "package")
-public class PersistentPackage implements Package {
+@Table
+public class PackageCollection {
 
-    @OneToMany(mappedBy = "pkg", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "packageCollection", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<PersistentFileArtifact> fileArtifacts = new HashSet<PersistentFileArtifact>();
+    private Set<Package> packages = new HashSet<>();
 
     @Id
     @GeneratedValue(generator = "gen")
@@ -48,40 +44,50 @@ public class PersistentPackage implements Package {
 
     private String name;
 
-    public PersistentPackage() {
+    private boolean finalized = false;
+
+    public PackageCollection() {
     }
 
-    public PersistentPackage(String name) {
+    public PackageCollection(String name) {
         this.name = name;
     }
 
-    public Collection<FileArtifact> getFileArtifacts() {
-        return Collections.<FileArtifact> unmodifiableCollection(fileArtifacts);
+    public Set<Package> getPackages() {
+        return packages;
     }
 
-    public void addFileArtifact(PersistentFileArtifact file) {
-        file.setPkg(this);
-        this.fileArtifacts.add(file);
+    public void setPackages(Set<Package> packages) {
+        packages.forEach(p -> p.setPackageCollection(this));
+        this.packages = packages;
+    }
+
+    public void addPackage(Package pkg) {
+        pkg.setPackageCollection(this);
+        this.packages.add(pkg);
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setFileArtifacts(Set<PersistentFileArtifact> fileArtifacts) {
-        fileArtifacts.forEach(f -> f.setPkg(this));
-        this.fileArtifacts = fileArtifacts;
-    }
-
     public void setId(Long id) {
         this.id = id;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isFinalized() {
+        return finalized;
+    }
+
+    public void setFinalized(boolean finalized) {
+        this.finalized = finalized;
     }
 }

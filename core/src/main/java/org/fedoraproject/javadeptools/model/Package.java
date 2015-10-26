@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fedoraproject.javadeptools.impl;
+package org.fedoraproject.javadeptools.model;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -24,77 +24,78 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.fedoraproject.javadeptools.ClassEntry;
-import org.fedoraproject.javadeptools.FileArtifact;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
-@Table(name = "fileArtifact")
-public class PersistentFileArtifact implements FileArtifact {
+@Table(indexes = { @Index(name = "package_packageCollectionId", columnList = "packageCollectionId") })
+public class Package {
 
-    @OneToMany(mappedBy = "fileArtifact", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "pkg", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<PersistentClassEntry> classes = new HashSet<PersistentClassEntry>();
+    private Set<FileArtifact> fileArtifacts = new HashSet<FileArtifact>();
 
     @Id
     @GeneratedValue(generator = "gen")
     @GenericGenerator(name = "gen", strategy = "increment")
     private Long id;
-    private String path;
+
+    private String name;
 
     @ManyToOne
-    @JoinColumn(name = "pkgId")
-    private PersistentPackage pkg;
+    @JoinColumn(name = "packageCollectionId", nullable = false)
+    private PackageCollection packageCollection;
 
-    public PersistentFileArtifact() {
+    public PackageCollection getPackageCollection() {
+        return packageCollection;
     }
 
-    public PersistentFileArtifact(String path) {
-        this.path = path;
+    public void setPackageCollection(
+            PackageCollection packageCollection) {
+        this.packageCollection = packageCollection;
     }
 
-    public Collection<ClassEntry> getClasses() {
-        return Collections.<ClassEntry> unmodifiableCollection(classes);
+    public Package() {
+    }
+
+    public Package(String name) {
+        this.name = name;
+    }
+
+    public Collection<FileArtifact> getFileArtifacts() {
+        return Collections.unmodifiableCollection(fileArtifacts);
+    }
+
+    public void addFileArtifact(FileArtifact file) {
+        file.setPkg(this);
+        this.fileArtifacts.add(file);
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getPath() {
-        return path;
+    public String getName() {
+        return name;
     }
 
-    public PersistentPackage getPkg() {
-        return pkg;
-    }
-
-    public void setClasses(Set<PersistentClassEntry> classes) {
-        classes.forEach(c -> c.setFileArtifact(this));
-        this.classes = classes;
-    }
-
-    public void addClass(PersistentClassEntry clazz) {
-        clazz.setFileArtifact(this);
-        this.classes.add(clazz);
+    public void setFileArtifacts(Set<FileArtifact> fileArtifacts) {
+        fileArtifacts.forEach(f -> f.setPkg(this));
+        this.fileArtifacts = fileArtifacts;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public void setPkg(PersistentPackage pkg) {
-        this.pkg = pkg;
+    public void setName(String name) {
+        this.name = name;
     }
 }

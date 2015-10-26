@@ -13,49 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fedoraproject.javadeptools.impl;
+package org.fedoraproject.javadeptools.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.fedoraproject.javadeptools.ClassEntry;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "classEntry")
-public class PersistentClassEntry implements ClassEntry {
+@Table(indexes = { @Index(name = "classEntry_fileArtifactId", columnList = "fileArtifactId") })
+public class ClassEntry {
 
     private String className;
     private String packageName;
 
     @ManyToOne
-    @JoinColumn(name = "fileArtifactId")
-    private PersistentFileArtifact fileArtifact;
+    @JoinColumn(name = "fileArtifactId", nullable = false)
+    private FileArtifact fileArtifact;
 
     @Id
     @GeneratedValue(generator = "gen")
     @GenericGenerator(name = "gen", strategy = "increment")
     private Long id;
 
-    public PersistentClassEntry() {
+    public ClassEntry() {
     }
 
-    public PersistentClassEntry(String packageName, String className) {
+    public ClassEntry(String packageName, String className) {
         this.packageName = packageName;
         this.className = className;
     }
 
-    @Override
     public String getClassName() {
         return className;
     }
 
-    @Override
-    public PersistentFileArtifact getFileArtifact() {
+    public FileArtifact getFileArtifact() {
         return fileArtifact;
     }
 
@@ -67,7 +65,7 @@ public class PersistentClassEntry implements ClassEntry {
         this.className = className;
     }
 
-    public void setFileArtifact(PersistentFileArtifact fileArtifact) {
+    public void setFileArtifact(FileArtifact fileArtifact) {
         this.fileArtifact = fileArtifact;
     }
 
@@ -75,7 +73,6 @@ public class PersistentClassEntry implements ClassEntry {
         this.id = id;
     }
 
-    @Override
     public String getPackageName() {
         return packageName;
     }
