@@ -1,4 +1,4 @@
-@(page:Page[org.fedoraproject.javadeptools.ClassEntry])(implicit request:play.api.mvc.RequestHeader)
+@(page:Page[org.fedoraproject.javadeptools.model.ClassEntry])(implicit request:play.api.mvc.RequestHeader)
 <div>Showing results from @page.from to @page.to of total @page.totalCount</div>
 @defining(request.getQueryString("q").getOrElse("")) { q =>
     <ul class="pagination">

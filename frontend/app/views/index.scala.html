@@ -1,4 +1,4 @@
-@(page: Option[Page[org.fedoraproject.javadeptools.ClassEntry]])(implicit request:play.api.mvc.RequestHeader)
+@(page: Option[Page[org.fedoraproject.javadeptools.model.ClassEntry]])(implicit request:play.api.mvc.RequestHeader)
 
 @main("Search for Java classes in Fedora", "search") {
     <form method="GET" action="@routes.Application.index(1)">

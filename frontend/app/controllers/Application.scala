@@ -3,17 +3,21 @@ package controllers
 import collection.JavaConverters._
 import java.io.File
 import play.api.mvc.{ Controller, Action }
-import org.fedoraproject.javadeptools.impl.DatabaseFactory
-import org.fedoraproject.javadeptools.Database
 import org.fedoraproject.javadeptools.Query
 import play.api.mvc.Request
 import play.api.Play
+import com.google.inject.Guice
+import org.fedoraproject.javadeptools.impl.JavaDeptoolsModule
+import org.fedoraproject.javadeptools.data.ClassEntryDao
+import org.fedoraproject.javadeptools.data.PackageCollectionDao
+import scala.collection.immutable.HashMap
+import com.google.inject.persist.jpa.JpaPersistModule
 
 object Page {
   val itemsPerPage = 100
   def create[T](query: Query[T], currentPage: Int)(implicit request: Request[Any]) = {
-    val pages = query.getCount / itemsPerPage + 1
-    val total = query.getCount
+    val total = query.getTotal
+    val pages = total / itemsPerPage + 1
     if (currentPage < 1 || currentPage > pages) {
       None
     } else {
@@ -22,7 +26,7 @@ object Page {
   }
 }
 
-case class Page[T](content: Iterable[T], currentPage: Int, totalCount: Int) {
+case class Page[T](content: Iterable[T], currentPage: Int, totalCount: Long) {
   val from = (currentPage - 1) * Page.itemsPerPage
   val to = from + content.size
   val maxPage = totalCount / Page.itemsPerPage
@@ -30,14 +34,19 @@ case class Page[T](content: Iterable[T], currentPage: Int, totalCount: Int) {
 
 object Application extends Controller {
 
-  lazy val dbFactory = new DatabaseFactory(Play.current.configuration.getString("java-deptools.db.url").get)
+  val dbProps = HashMap("javax.persistence.jdbc.url" ->
+                          Play.current.configuration.getString("java-deptools.db.url").get)
+  lazy val injector = JavaDeptoolsModule.createInjector(dbProps.asJava)
 
   def index(page: Int, q: String) = Action { implicit request =>
-    val db = dbFactory.createDatabase()
+    val collectionDao = injector.getInstance(classOf[PackageCollectionDao])
+    val classDao = injector.getInstance(classOf[ClassEntryDao])
+    // TODO
+    val collection = collectionDao.getCollectionByName("primary");
     if (q == "") {
       Ok(views.html.index(None))
     } else {
-      val query = db.queryClasses("%" + q + "%")
+      val query = classDao.queryClassEntriesByName(collection, q)
       val content = Page.create(query, page)
       Ok(views.html.index(content))
     }
@@ -47,8 +56,9 @@ object Application extends Controller {
   def about = Action(implicit request => Ok(views.html.about()))
 
   def packageDetail(name: String) = Action { implicit request =>
-    val db = dbFactory.createDatabase()
-    val pkg = db.getPackage(name)
-    if (pkg == null) NotFound else Ok(views.html.package_detail(pkg))
+    //val db = injector.getInstance(classOf[DefaultDatabase])
+    //val pkg = db.getPackage(name)
+    //if (pkg == null) NotFound else Ok(views.html.package_detail(pkg))
+    NotFound
   }
 }
