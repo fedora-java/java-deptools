@@ -1,4 +1,4 @@
-name := "core"
+name := "java-deptools-core"
 
 fork in run := true
 
