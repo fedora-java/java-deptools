@@ -1,0 +1,24 @@
+java-deptools is built with sbt, which can be used through activator utility
+(http://www.typesafe.com/activator/download).
+
+In order to build java-deptools, you need to obtain latest version of
+java-deptools-native, which wasn't released yet. Clone it from
+https://github.com/mizdebsk/java-deptools-native, install into local maven repo
+and add the following to your `.sbt/*/global.sbt` file:
+````
+resolvers <<= resolvers {rs =>
+  val localMaven = "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
+  localMaven +: rs
+}
+````
+
+To generate an eclipse project, add the following to your
+`.sbt/*/plugins/plugins.sbt`:
+````
+addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "3.0.0")
+````
+and run
+````
+activator eclipse
+````
+The eclipse project needs to be regenerated when dependencies are updated.
