@@ -22,14 +22,14 @@
     <tr>
         <th></th>
         <th>Java class</th>
-        <th>JAR path</th>
+        <th>JAR name</th>
         <th>Package name</th>
     </tr>
     @for(row <-page.content) {
     <tr>
         <td>@if(row.getPackageName){ @(row.getPackageName). }</td>
         <td>@row.getClassName</td>
-        <td>@row.getFileArtifact.getPath</td>
+        <td><span title="@row.getFileArtifact.getPath">@row.getFileArtifact.getPath.split("/").last</span></td>
         <td>@row.getFileArtifact.getPkg.getName</td>
     </tr>
 }

@@ -23,8 +23,8 @@ public class PackageProcessor {
                 if (!entry.isDirectory() && entry.getName().endsWith(".jar")) {
                     try {
                         JarInputStream jarIs = new JarInputStream(is);
-                        FileArtifact jar = processJar(jarIs, entry
-                                .getName().replaceFirst("^\\./", ""));
+                        FileArtifact jar = processJar(jarIs, entry.getName()
+                                .replaceFirst("^\\.", ""));
                         pkg.addFileArtifact(jar);
 
                         // JAR processing throws SecurityException on invalid
@@ -51,11 +51,13 @@ public class PackageProcessor {
                 String[] nameParts = entry.getName()
                         .replaceFirst("\\.class$", "").split("/");
                 StringBuilder packageNameBuilder = new StringBuilder();
-                for (int i = 0; i < nameParts.length - 1; i++)
+                for (int i = 0; i < nameParts.length - 1; i++) {
                     packageNameBuilder.append(nameParts[i]).append('.');
-                if (nameParts.length > 1)
+                }
+                if (nameParts.length > 1) {
                     packageNameBuilder
                             .deleteCharAt(packageNameBuilder.length() - 1);
+                }
                 String packageName = packageNameBuilder.toString();
                 String className = nameParts[nameParts.length - 1];
                 ClassEntry classEntry = new ClassEntry(
