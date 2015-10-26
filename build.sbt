@@ -17,4 +17,5 @@ lazy val core = (project in file("core")).
 lazy val frontend = (project in file("frontend")).
   settings(commonSettings: _*).
   enablePlugins(PlayScala).
+  enablePlugins(RpmPlugin).
   dependsOn(core)
