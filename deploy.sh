@@ -1,10 +1,10 @@
 #!/bin/bash
-shell='ssh java-deptools@java-deptools.fedorainfracloud.org'
-activator frontend/dist
+shell='ssh root@java-deptools.fedorainfracloud.org'
+activator frontend/rpm:packageBin
 $shell '
-pkill -f "^java.*frontend-0" || :
-rm -rf frontend-0/
-dd of=frontend-0.zip
-unzip frontend-0.zip
-nohup frontend-0/bin/frontend &> /dev/null &' \
-    < frontend/target/universal/frontend-0.zip
+set -e
+systemctl stop java-deptools-frontend.service ||:
+dd of=frontend.rpm
+dnf install -y frontend.rpm
+systemctl start java-deptools-frontend.service' \
+    < frontend/target/rpm/RPMS/noarch/java-deptools-frontend-0-1.noarch.rpm
