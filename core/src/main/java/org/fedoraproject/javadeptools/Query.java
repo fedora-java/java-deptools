@@ -9,5 +9,5 @@ public interface Query<T> {
 
     public List<T> getResults(int offset, int limit);
 
-    public int getCount();
+    public long getTotal();
 }
