@@ -16,5 +16,6 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.12" % "test",
   "com.novocode" % "junit-interface" % "0.10" % "test",
   "com.google.inject" % "guice" % "4.0",
+  "com.google.inject.extensions" % "guice-persist" % "4.0",
   "org.fedoraproject.javadeptools" % "java-deptools-native" % "1.0.0-SNAPSHOT"
 )

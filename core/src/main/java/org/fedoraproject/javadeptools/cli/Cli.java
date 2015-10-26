@@ -17,11 +17,9 @@ package org.fedoraproject.javadeptools.cli;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -29,13 +27,8 @@ import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.fedoraproject.javadeptools.ClassEntry;
-import org.fedoraproject.javadeptools.Database;
-import org.fedoraproject.javadeptools.DatabaseBuilder;
-import org.fedoraproject.javadeptools.Package;
 import org.fedoraproject.javadeptools.impl.JavaDeptoolsModule;
 
-import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 class Cli {
@@ -81,13 +74,8 @@ class Cli {
         line = parser.parse(options, args);
         List<String> argList = Arrays.asList(line.getArgs());
         // TODO error handling
-        this.command = argList.get(0);
+        command = argList.get(0);
         this.args = argList.subList(1, argList.size());
-    }
-
-    private void printClassEntry(ClassEntry c) {
-        System.out.println(c.getFileArtifact().getPkg().getName() + " | "
-                + c.getFileArtifact().getPath() + " | " + c.getClassName());
     }
 
     void run() throws Exception {
@@ -114,26 +102,18 @@ class Cli {
 
         Map<String, String> dbProps = new HashMap<>();
         dbProps.put("javax.persistence.jdbc.url", db_path);
-        Injector injector = Guice
-                .createInjector(new JavaDeptoolsModule(dbProps));
-        Database db = injector.getInstance(Database.class);
-
+        Injector injector = JavaDeptoolsModule.createInjector(dbProps);
+        Commands commands = injector.getInstance(Commands.class);
         switch (command) {
         case "build":
-            DatabaseBuilder dbBuilder = injector
-                    .getInstance(DatabaseBuilder.class);
-            // TODO collection name
-            dbBuilder.build(
-                    args.stream().map(File::new).collect(Collectors.toList()),
-                    "primary");
+            commands.build(args);
             return;
         case "list":
-            Collection<Package> packages = db.getPackages();
-            packages.forEach(p -> System.out.println(p.getName()));
+            commands.list();
             return;
         case "query":
-            db.queryClasses('%' + args.get(0) + '%').getResults()
-                    .forEach(this::printClassEntry);
+            commands.query(args.get(0));
+            return;
         }
 
         assert false;
