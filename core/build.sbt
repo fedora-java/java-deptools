@@ -2,8 +2,6 @@ name := "core"
 
 fork in run := true
 
-resolvers += "Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"
-
 libraryDependencies ++= Seq(
   "commons-cli" % "commons-cli" % "1.2",
   "org.apache.commons" % "commons-compress" % "1.4.1",
