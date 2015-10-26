@@ -35,7 +35,13 @@ case class Page[T](content: Iterable[T], currentPage: Int, totalCount: Long) {
 object Application extends Controller {
 
   val dbProps = HashMap("javax.persistence.jdbc.url" ->
-                          Play.current.configuration.getString("java-deptools.db.url").get)
+                          Play.current.configuration.getString("db.default.url").get,
+                          "javax.persistence.jdbc.driver" ->
+                          Play.current.configuration.getString("db.default.driver").get,
+                          "javax.persistence.jdbc.user" ->
+                          Play.current.configuration.getString("db.default.user").get,
+                          "javax.persistence.jdbc.password" ->
+                          Play.current.configuration.getString("db.default.password").get)
   lazy val injector = JavaDeptoolsModule.createInjector(dbProps.asJava)
 
   def index(page: Int, q: String) = Action { implicit request =>

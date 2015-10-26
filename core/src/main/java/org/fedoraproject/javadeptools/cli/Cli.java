@@ -64,6 +64,8 @@ class Cli {
         // "build package database from specified directory");
         // options.addOption("h", "help", false,
         // "print help about usage and exit");
+        options.addOption("debug", false,
+                "Print additional debugging information");
         options.addOption("V", "version", false,
                 "print version information and exit");
         // options.addOption("list", false, "list all indexed packages");
@@ -94,14 +96,23 @@ class Cli {
             System.exit(0);
         }
 
-        String db_path = line.getOptionValue("database");
-
-        if (!db_path.startsWith("jdbc:")) {
-            db_path = "jdbc:h2:file:" + new File(db_path).getAbsolutePath();
-        }
+        String dbPath = line.getOptionValue("database");
 
         Map<String, String> dbProps = new HashMap<>();
-        dbProps.put("javax.persistence.jdbc.url", db_path);
+        if (!dbPath.startsWith("jdbc:")) {
+            dbPath = "jdbc:h2:file:" + new File(dbPath).getAbsolutePath();
+        } else {
+            String[] parts = dbPath.split(":");
+            if (parts.length > 2 && parts[1].equals("postgresql")) {
+                dbProps.put("javax.persistence.jdbc.driver", "org.postgresql.Driver");
+            }
+        }
+        dbProps.put("javax.persistence.jdbc.url", dbPath);
+        if (line.hasOption("debug")) {
+            dbProps.put("hibernate.show_sql", "true");
+            dbProps.put("hibernate.format_sql", "true");
+        }
+        System.out.println(dbProps);
         Injector injector = JavaDeptoolsModule.createInjector(dbProps);
         Commands commands = injector.getInstance(Commands.class);
         switch (command) {
