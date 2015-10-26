@@ -20,39 +20,37 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
-import javax.persistence.EntityManager;
+import javax.inject.Inject;
 
-import org.fedoraproject.javadeptools.DatabaseBuilder;
+import org.fedoraproject.javadeptools.data.PackageCollectionDao;
+import org.fedoraproject.javadeptools.data.PackageDao;
+import org.fedoraproject.javadeptools.model.Package;
+import org.fedoraproject.javadeptools.model.PackageCollection;
 
-public class DefaultDatabaseBuilder implements DatabaseBuilder {
-    public DefaultDatabaseBuilder(EntityManagerFactory emf) {
-        this.emf = emf;
-    }
+public class DefaultDatabaseBuilder {
+    @Inject
+    private PackageCollectionDao collectionDao;
+    @Inject
+    private PackageDao packageDao;
 
     private final static Logger logger = Logger
             .getLogger(DefaultDatabaseBuilder.class.getName());
 
-    public void build(Collection<File> paths, boolean purge) {
+    public void build(Collection<File> paths, String collectionName) {
         logger.info("Building from paths: " + paths);
         List<File> rpms = new ArrayList<>();
         paths.forEach(path -> findRpms(path, rpms));
-        List<Long> pkgs = rpms.parallelStream().map(rpm -> {
-            PersistentPackage pkg = new PackageProcessor().processPackage(rpm);
-            EntityManager em = emf.createEntityManager();
-            em.getTransaction().begin();
-            em.persist(pkg);
-            em.getTransaction().commit();
-            return pkg.getId();
-        }).collect(Collectors.toList());
-        if (purge) {
-            EntityManager em = emf.createEntityManager();
-            em.getTransaction().begin();
-            em.createQuery("delete from PersistentPackage where id not in ?0")
-                    .setParameter(0, pkgs).executeUpdate();
-            em.getTransaction().commit();
-        }
+        PackageCollection packageCollection = new PackageCollection(
+                collectionName);
+        collectionDao.startNewCollection(packageCollection);
+        rpms.parallelStream().forEach(rpm -> {
+                Package pkg = new PackageProcessor()
+                        .processPackage(rpm);
+                pkg.setPackageCollection(packageCollection);
+                packageDao.persist(pkg);
+            });
+        collectionDao.finalizeCollection(packageCollection);
     }
 
     private void findRpms(File path, List<File> rpms) {
