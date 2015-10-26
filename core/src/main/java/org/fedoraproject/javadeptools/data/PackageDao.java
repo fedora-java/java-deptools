@@ -1,6 +1,7 @@
 package org.fedoraproject.javadeptools.data;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.ParameterExpression;
@@ -10,11 +11,13 @@ import org.fedoraproject.javadeptools.Query;
 import org.fedoraproject.javadeptools.model.Package;
 import org.fedoraproject.javadeptools.model.PackageCollection;
 
+import com.google.inject.persist.Transactional;
+
 public class PackageDao {
-    EntityManager em;
+    Provider<EntityManager> em;
 
     @Inject
-    public PackageDao(EntityManager em) {
+    public PackageDao(Provider<EntityManager> em) {
         this.em = em;
     }
 
@@ -69,7 +72,7 @@ public class PackageDao {
     }
 
     public Query<Package> getAllPackages(PackageCollection collection) {
-        TableQuery<Package> query = new TableQuery<>(Package.class, em);
+        TableQuery<Package> query = new TableQuery<>(Package.class, em.get());
         query.addComponent(new BaseComponent(collection));
         return query;
     }
@@ -84,7 +87,7 @@ public class PackageDao {
 
     private TableQuery<Package> queryPackagesByName(
             PackageCollection collection, String name, boolean glob) {
-        TableQuery<Package> query = new TableQuery<>(Package.class, em);
+        TableQuery<Package> query = new TableQuery<>(Package.class, em.get());
         query.addComponent(new BaseComponent(collection));
         query.addComponent(new NameComponent(name, glob));
         return query;
@@ -95,10 +98,9 @@ public class PackageDao {
         return queryPackagesByName(collection, nameGlob, true);
     }
 
+    @Transactional
     public Package persist(Package pkg) {
-        em.getTransaction().begin();
-        em.persist(pkg);
-        em.getTransaction().commit();
+        em.get().persist(pkg);
         return pkg;
     }
 }
