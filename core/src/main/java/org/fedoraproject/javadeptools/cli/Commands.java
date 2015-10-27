@@ -29,22 +29,20 @@ public class Commands {
                 + c.getFileArtifact().getPath() + " | " + c.getClassName());
     }
 
-    public void query(String pattern) {
-        // TODO collection name
+    public void query(String collectionName, String pattern) {
         PackageCollection collection = collectionDao
-                .getCollectionByName("primary");
+                .getCollectionByName(collectionName);
         classDao.queryClassEntriesByName(collection, pattern).getResults()
                 .forEach(this::printClassEntry);
     }
 
-    public void build(Collection<String> args) {
-        // TODO collection name
+    public void build(String collectionName, Collection<String> args) {
         databaseBuilder.build(
                 args.stream().map(File::new).collect(Collectors.toList()),
-                "primary");
+                collectionName);
     }
 
-    public void list() {
+    public void list(String collectionName) {
         // TODO NYI
         throw new UnsupportedOperationException();
     }

@@ -66,6 +66,8 @@ class Cli {
         // "print help about usage and exit");
         options.addOption("debug", false,
                 "Print additional debugging information");
+        options.addOption("c", "collection", true,
+                "Specify which package collection to use (defaults to \"primary\")");
         options.addOption("V", "version", false,
                 "print version information and exit");
         // options.addOption("list", false, "list all indexed packages");
@@ -112,18 +114,20 @@ class Cli {
             dbProps.put("hibernate.show_sql", "true");
             dbProps.put("hibernate.format_sql", "true");
         }
-        System.out.println(dbProps);
+
+        String collectionName = line.getOptionValue("collection", "primary");
+
         Injector injector = JavaDeptoolsModule.createInjector(dbProps);
         Commands commands = injector.getInstance(Commands.class);
         switch (command) {
         case "build":
-            commands.build(args);
+            commands.build(collectionName, args);
             return;
         case "list":
-            commands.list();
+            commands.list(collectionName);
             return;
         case "query":
-            commands.query(args.get(0));
+            commands.query(collectionName, args.get(0));
             return;
         }
 
