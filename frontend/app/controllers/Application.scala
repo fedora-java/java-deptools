@@ -48,17 +48,14 @@ object Application extends Controller {
     val collectionDao = injector.getInstance(classOf[PackageCollectionDao])
     val classDao = injector.getInstance(classOf[ClassEntryDao])
     val collections = collectionDao.getAllCollections.asScala;
+    val collection = collectionName.flatMap { name => collections.find(_.getName() == name) }
+                                   .getOrElse(collections.head)
     if (q == "") {
-      Ok(views.html.index(collections, None))
+      Ok(views.html.index(collections, collection, None))
     } else {
-      collections.find(_.getName() == collectionName.getOrElse("rawhide")) match {
-        case None => NotFound
-        case Some(collection) => {
-            val query = classDao.queryClassEntriesByName(collection, q)
-            val content = Page.create(query, page)
-            Ok(views.html.index(collections, content))
-        }
-      }
+      val query = classDao.queryClassEntriesByName(collection, q)
+      val content = Page.create(query, page)
+      Ok(views.html.index(collections, collection, content))
     }
   }
 
