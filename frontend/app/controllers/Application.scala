@@ -44,19 +44,22 @@ object Application extends Controller {
                           Play.current.configuration.getString("db.default.password").get)
   lazy val injector = JavaDeptoolsModule.createInjector(dbProps.asJava)
 
-  def index(page: Int, q: String) = Action { implicit request =>
+  def index(page: Int, q: String, collectionName: Option[String]) = Action { implicit request =>
     val collectionDao = injector.getInstance(classOf[PackageCollectionDao])
     val classDao = injector.getInstance(classOf[ClassEntryDao])
-    // TODO
-    val collection = collectionDao.getCollectionByName("primary");
+    val collections = collectionDao.getAllCollections.asScala;
     if (q == "") {
-      Ok(views.html.index(None))
+      Ok(views.html.index(collections, None))
     } else {
-      val query = classDao.queryClassEntriesByName(collection, q)
-      val content = Page.create(query, page)
-      Ok(views.html.index(content))
+      collections.find(_.getName() == collectionName.getOrElse("rawhide")) match {
+        case None => NotFound
+        case Some(collection) => {
+            val query = classDao.queryClassEntriesByName(collection, q)
+            val content = Page.create(query, page)
+            Ok(views.html.index(collections, content))
+        }
+      }
     }
-
   }
 
   def about = Action(implicit request => Ok(views.html.about()))

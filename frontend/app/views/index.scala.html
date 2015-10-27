@@ -1,9 +1,16 @@
-@(page: Option[Page[org.fedoraproject.javadeptools.model.ClassEntry]])(implicit request:play.api.mvc.RequestHeader)
+@(collections: Iterable[org.fedoraproject.javadeptools.model.PackageCollection],
+    page: Option[Page[org.fedoraproject.javadeptools.model.ClassEntry]]
+    )(implicit request:play.api.mvc.RequestHeader)
 
 @main("Search for Java classes in Fedora", "search") {
     <form method="GET" action="@routes.Application.index(1)">
          <input type="text" name="q" value="@request.getQueryString("q").getOrElse("")"
                 autofocus="autofocus"/>
+         <select name="collection">
+            @for(collection <- collections) {
+                <option value="@collection.getName">@collection.getName</option>
+            }
+         </select>
          <button type="submit">Search</button>
     </form>
     @page match {

@@ -1,6 +1,7 @@
 package org.fedoraproject.javadeptools.data;
 
 import java.util.Iterator;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -24,20 +25,28 @@ public class PackageCollectionDao {
                 .get()
                 .createQuery(
                         "from PackageCollection where name = ?0 and finalized = true",
-                        PackageCollection.class)
-                .setParameter(0, name).getResultList().iterator();
+                        PackageCollection.class).setParameter(0, name)
+                .getResultList().iterator();
         if (it.hasNext())
             return it.next();
         return null;
     }
 
+    public List<PackageCollection> getAllCollections() {
+        return em
+                .get()
+                .createQuery(
+                        "from PackageCollection where finalized = true order by name desc",
+                        PackageCollection.class).getResultList();
+    }
+
     @Transactional
-    public PackageCollection startNewCollection(
-            PackageCollection collection) {
+    public PackageCollection startNewCollection(PackageCollection collection) {
         // delete possible unfinished collection
         Query query = em
                 .get()
-                .createQuery("delete from PackageCollection where name = ?0 and finalized = false");
+                .createQuery(
+                        "delete from PackageCollection where name = ?0 and finalized = false");
         query.setParameter(0, collection.getName());
         query.executeUpdate();
         em.get().persist(collection);
@@ -49,7 +58,8 @@ public class PackageCollectionDao {
         // cascades to packages
         Query query = em
                 .get()
-                .createQuery("delete from PackageCollection where name = ?0 and finalized = true");
+                .createQuery(
+                        "delete from PackageCollection where name = ?0 and finalized = true");
         query.setParameter(0, collection.getName());
         query.executeUpdate();
         collection.setFinalized(true);
