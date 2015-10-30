@@ -46,8 +46,19 @@
                 <tr>
                     <td>@if(row.getPackageName){ @(row.getPackageName). }</td>
                     <td>@row.getClassName</td>
-                    <td><span title="@row.getFileArtifact.getPath">@row.getFileArtifact.getPath.split("/").last</span></td>
-                    <td>@row.getFileArtifact.getPkg.getName</td>
+                    <td>
+                        <a alt="@row.getFileArtifact.getPath"
+                           href="@routes.Application.fileArtifactDetail(row.getFileArtifact.getPkg.getName,
+                                                                        row.getFileArtifact.getId)">
+                            @row.getFileArtifact.getPath.split("/").last
+                        </a>
+                    </td>
+                    <td>
+                        <a href="@routes.Application.packageDetail(currentCollection.getName,
+                                                                   row.getFileArtifact.getPkg.getName)">
+                            @row.getFileArtifact.getPkg.getName
+                        </a>
+                    </td>
                 </tr>
             }
             </table>

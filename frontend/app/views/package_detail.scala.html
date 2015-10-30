@@ -1,14 +1,21 @@
 @(pkg: org.fedoraproject.javadeptools.model.Package)
-@main(pkg.getName) {
+@main("Package detail") {
     <h2>Package - @pkg.getName</h2>
     <h3>Contained file artifacts</h3>
-    <table>
+    <table class="table table-condensed">
         <tr>
-            <th>File name</th>
+            <th>File path</th>
+            <th>Class file count</th>
         </tr>
         @for(jar <- pkg.getFileArtifacts) {
             <tr>
-                <td>@jar.getPath</td>
+                <td>
+                    <a href="@routes.Application.fileArtifactDetail(jar.getPkg.getName,
+                                                                    jar.getId)">
+                        @jar.getPath
+                    </a>
+                </td>
+                <td>@jar.getClasses.size</td>
             </tr>
         }
     </table>
