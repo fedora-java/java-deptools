@@ -8,7 +8,6 @@ lazy val commonSettings = Seq(
   rpmLicense := Some("ASL 2.0"),
   rpmAutoprov := "no",
   rpmRequirements := Seq("java-headless"),
-  rpmProvides := Seq("config(java-deptools)"),
   serverLoading in Rpm := ServerLoader.Systemd
 )
 

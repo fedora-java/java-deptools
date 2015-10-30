@@ -2,6 +2,8 @@ name := "java-deptools-core"
 
 fork in run := true
 
+rpmProvides := Seq("config(java-deptools-core)")
+
 libraryDependencies ++= Seq(
   "commons-cli" % "commons-cli" % "1.2",
   "org.apache.commons" % "commons-compress" % "1.4.1",
