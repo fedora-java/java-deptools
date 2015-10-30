@@ -22,3 +22,4 @@ for repo; do
     wait # don't run multiple JVMs
     java-deptools-core --database jdbc:postgresql:java-deptools --collection $repo build $repo &
 done
+wait
