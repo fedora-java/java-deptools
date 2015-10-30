@@ -1,0 +1,17 @@
+@(file: org.fedoraproject.javadeptools.model.FileArtifact)
+@main("File artifact detail") {
+    <h2>File - <tt>@file.getPath</tt> from package @file.getPkg.getName</h2>
+    <h3>Contained classes</h3>
+    <table id="class-table" class="table table-condensed">
+        <tr>
+            <th></th>
+            <th>Class name</th>
+        </tr>
+        @for(clazz <- file.getClasses) {
+            <tr>
+                <td>@if(clazz.getPackageName){ @(clazz.getPackageName). }</td>
+                <td>@clazz.getClassName</td>
+            </tr>
+        }
+    </table>
+}

@@ -28,6 +28,7 @@ import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -40,6 +41,7 @@ public class FileArtifact {
 
     @OneToMany(mappedBy = "fileArtifact", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @OrderBy("packageName, className")
     private Set<ClassEntry> classes = new HashSet<ClassEntry>();
 
     @Id
@@ -82,7 +84,7 @@ public class FileArtifact {
 
     public void addClass(ClassEntry clazz) {
         clazz.setFileArtifact(this);
-        this.classes.add(clazz);
+        classes.add(clazz);
     }
 
     public void setId(Long id) {
