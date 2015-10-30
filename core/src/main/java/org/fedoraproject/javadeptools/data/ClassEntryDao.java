@@ -76,7 +76,7 @@ public class ClassEntryDao {
 
         @Override
         public <E> void setParameters(TypedQuery<E> query) {
-            query.setParameter(globParameter, glob + '%');
+            query.setParameter(globParameter, glob);
         }
     }
 

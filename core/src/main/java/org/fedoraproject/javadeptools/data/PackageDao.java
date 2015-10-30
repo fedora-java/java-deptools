@@ -1,5 +1,7 @@
 package org.fedoraproject.javadeptools.data;
 
+import java.util.Iterator;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.persistence.EntityManager;
@@ -47,8 +49,7 @@ public class PackageDao {
         private boolean glob;
         private ParameterExpression<String> nameParameter;
 
-        public NameComponent(String name,
-                boolean glob) {
+        public NameComponent(String name, boolean glob) {
             this.name = name;
             this.glob = glob;
         }
@@ -77,12 +78,12 @@ public class PackageDao {
         return query;
     }
 
-    public Package getPackageByName(
-            PackageCollection collection, String name) {
-        TableQuery<Package> query = queryPackagesByName(collection,
-                name, false);
-        // TODO exception
-        return query.getResults(1).get(0);
+    public Package getPackageByName(PackageCollection collection, String name) {
+        TableQuery<Package> query = queryPackagesByName(collection, name, false);
+        Iterator<Package> it = query.getResults(1).iterator();
+        if (it.hasNext())
+            return it.next();
+        return null;
     }
 
     private TableQuery<Package> queryPackagesByName(
@@ -93,8 +94,8 @@ public class PackageDao {
         return query;
     }
 
-    public Query<Package> queryPackagesByNameGlob(
-            PackageCollection collection, String nameGlob) {
+    public Query<Package> queryPackagesByNameGlob(PackageCollection collection,
+            String nameGlob) {
         return queryPackagesByName(collection, nameGlob, true);
     }
 
