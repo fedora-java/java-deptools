@@ -1,15 +1,14 @@
 #!/bin/bash
 set -e
+VERSION=0
+RELNO="$(git rev-list "$(git describe --tags --abbrev=0)..HEAD" --count)"
 shell='ssh root@java-deptools.fedorainfracloud.org'
-activator core/rpm:packageBin frontend/rpm:packageBin
-tar cj {core,frontend}/target/rpm/RPMS/noarch/java-deptools-*-0-1.noarch.rpm \
-       ./././././generate-repos.sh | \
-$shell '
-set -e
-tar xj  --strip-components 5
-systemctl stop java-deptools-frontend.service ||:
-rpm -e java-deptools-{core,frontend} ||:
-rpm -i java-deptools-{core,frontend}-0-1.noarch.rpm
-rm -f java-deptools-{core,frontend}-0-1.noarch.rpm
-mv generate-repos.sh /usr/libexec/
-systemctl start java-deptools-frontend.service'
+git archive HEAD --prefix="java-deptools-$VERSION/" | gzip > java-deptools-$VERSION.tar.gz
+mkdir -p build
+cd build
+sed "s/^Release:[^%]*/&.$RELNO/" ../java-deptools.spec > java-deptools.spec
+rpmbuild -bb -D"_sourcedir $PWD/.." -D"_rpmdir $PWD" java-deptools.spec
+cat noarch/java-deptools-$VERSION*.noarch.rpm | $shell '
+cat > java-deptools.rpm
+dnf reinstall -y java-deptools.rpm
+'
