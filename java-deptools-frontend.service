@@ -1,0 +1,11 @@
+[Unit]
+Description=java-deptools-frontend
+Requires=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/java-deptools-frontend
+User=java-deptools
+
+[Install]
+WantedBy=multi-user.target
