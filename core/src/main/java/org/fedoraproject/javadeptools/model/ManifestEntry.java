@@ -18,7 +18,7 @@ public class ManifestEntry {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "fileArtifactId")
+    @JoinColumn(name = "fileArtifactId", nullable = false)
     private FileArtifact fileArtifact;
 
     public ManifestEntry() {
