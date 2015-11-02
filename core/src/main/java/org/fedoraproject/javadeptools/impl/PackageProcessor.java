@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.fedoraproject.javadeptools.model.ClassEntry;
 import org.fedoraproject.javadeptools.model.FileArtifact;
 import org.fedoraproject.javadeptools.model.Package;
@@ -18,9 +18,9 @@ public class PackageProcessor {
                 .replaceAll("-[^-]*-[^-]*$", "");
         Package pkg = new Package(name);
         try (ArchiveInputStream is = new RpmArchiveInputStream(rpm.toPath())) {
-            ArchiveEntry entry;
-            while ((entry = is.getNextEntry()) != null) {
-                if (!entry.isDirectory() && entry.getName().endsWith(".jar")) {
+            CpioArchiveEntry entry;
+            while ((entry = (CpioArchiveEntry) is.getNextEntry()) != null) {
+                if (entry.isRegularFile() && entry.getName().endsWith(".jar")) {
                     try {
                         JarInputStream jarIs = new JarInputStream(is);
                         FileArtifact jar = processJar(jarIs, entry.getName()
