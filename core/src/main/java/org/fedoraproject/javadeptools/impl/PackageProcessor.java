@@ -21,16 +21,16 @@ public class PackageProcessor {
             CpioArchiveEntry entry;
             while ((entry = (CpioArchiveEntry) is.getNextEntry()) != null) {
                 if (entry.isRegularFile() && entry.getName().endsWith(".jar")) {
+                    String jarName = entry.getName().replaceFirst("^\\.", "");
+                    FileArtifact fileArtifact = new FileArtifact(jarName);
                     try {
                         JarInputStream jarIs = new JarInputStream(is);
-                        FileArtifact jar = processJar(jarIs, entry.getName()
-                                .replaceFirst("^\\.", ""));
-                        pkg.addFileArtifact(jar);
-
+                        processJar(jarIs, fileArtifact);
+                        pkg.addFileArtifact(fileArtifact);
+                    } catch (SecurityException e) {
                         // JAR processing throws SecurityException on invalid
                         // manifests
-                    } catch (SecurityException e) {
-                        // TODO
+                        fileArtifact.setValid(false);
                     }
                 }
             }
@@ -40,11 +40,9 @@ public class PackageProcessor {
         return pkg;
     }
 
-    private FileArtifact processJar(JarInputStream is, String jarName)
+    private void processJar(JarInputStream is, FileArtifact fileArtifact)
             throws IOException {
         JarEntry entry;
-        FileArtifact fileArtifact = new FileArtifact(
-                jarName);
         while ((entry = is.getNextJarEntry()) != null) {
             if (!entry.isDirectory() && entry.getName().endsWith(".class")
                     && !entry.getName().contains("$")) {
@@ -60,11 +58,9 @@ public class PackageProcessor {
                 }
                 String packageName = packageNameBuilder.toString();
                 String className = nameParts[nameParts.length - 1];
-                ClassEntry classEntry = new ClassEntry(
-                        packageName, className);
+                ClassEntry classEntry = new ClassEntry(packageName, className);
                 fileArtifact.addClass(classEntry);
             }
         }
-        return fileArtifact;
     }
 }

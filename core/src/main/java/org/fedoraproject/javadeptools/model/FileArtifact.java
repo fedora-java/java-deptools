@@ -48,7 +48,10 @@ public class FileArtifact {
     @GeneratedValue(generator = "gen")
     @GenericGenerator(name = "gen", strategy = "increment")
     private Long id;
+
     private String path;
+
+    private boolean valid = true;
 
     @ManyToOne
     @JoinColumn(name = "pkgId", nullable = false)
@@ -97,5 +100,13 @@ public class FileArtifact {
 
     public void setPkg(Package pkg) {
         this.pkg = pkg;
+    }
+
+    public boolean isValid() {
+        return valid;
+    }
+
+    public void setValid(boolean valid) {
+        this.valid = valid;
     }
 }
