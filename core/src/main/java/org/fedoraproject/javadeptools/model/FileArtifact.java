@@ -42,7 +42,11 @@ public class FileArtifact {
     @OneToMany(mappedBy = "fileArtifact", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @OrderBy("packageName, className")
-    private Set<ClassEntry> classes = new HashSet<ClassEntry>();
+    private Set<ClassEntry> classes = new HashSet<>();
+
+    @OneToMany(mappedBy = "fileArtifact", cascade = CascadeType.ALL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Set<ManifestEntry> manifestEntries = new HashSet<>();
 
     @Id
     @GeneratedValue(generator = "gen")
@@ -108,5 +112,19 @@ public class FileArtifact {
 
     public void setValid(boolean valid) {
         this.valid = valid;
+    }
+
+    public void addManifestEntry(ManifestEntry manifestEntry) {
+        manifestEntry.setFileArtifact(this);
+        manifestEntries.add(manifestEntry);
+    }
+
+    public Set<ManifestEntry> getManifestEntries() {
+        return Collections.unmodifiableSet(manifestEntries);
+    }
+
+    public void setManifestEntries(Set<ManifestEntry> manifestEntries) {
+        manifestEntries.forEach(e -> e.setFileArtifact(this));
+        this.manifestEntries = manifestEntries;
     }
 }

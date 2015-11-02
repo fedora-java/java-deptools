@@ -2,13 +2,16 @@ package org.fedoraproject.javadeptools.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
 import org.fedoraproject.javadeptools.model.ClassEntry;
 import org.fedoraproject.javadeptools.model.FileArtifact;
+import org.fedoraproject.javadeptools.model.ManifestEntry;
 import org.fedoraproject.javadeptools.model.Package;
 import org.fedoraproject.javadeptools.rpm.RpmArchiveInputStream;
 
@@ -44,23 +47,41 @@ public class PackageProcessor {
             throws IOException {
         JarEntry entry;
         while ((entry = is.getNextJarEntry()) != null) {
-            if (!entry.isDirectory() && entry.getName().endsWith(".class")
+            // There is JarInputStream.getManifest, but it's buggy
+            if (entry.getName().equals("META-INF/MANIFEST.MF")) {
+                processManifest(is, fileArtifact);
+            } else if (!entry.isDirectory()
+                    && entry.getName().endsWith(".class")
                     && !entry.getName().contains("$")) {
-                String[] nameParts = entry.getName()
-                        .replaceFirst("\\.class$", "").split("/");
-                StringBuilder packageNameBuilder = new StringBuilder();
-                for (int i = 0; i < nameParts.length - 1; i++) {
-                    packageNameBuilder.append(nameParts[i]).append('.');
-                }
-                if (nameParts.length > 1) {
-                    packageNameBuilder
-                            .deleteCharAt(packageNameBuilder.length() - 1);
-                }
-                String packageName = packageNameBuilder.toString();
-                String className = nameParts[nameParts.length - 1];
-                ClassEntry classEntry = new ClassEntry(packageName, className);
-                fileArtifact.addClass(classEntry);
+                processClass(entry, fileArtifact);
             }
+        }
+    }
+
+    private void processClass(JarEntry entry, FileArtifact fileArtifact) {
+        String[] nameParts = entry.getName()
+                .replaceFirst("\\.class$", "").split("/");
+        StringBuilder packageNameBuilder = new StringBuilder();
+        for (int i = 0; i < nameParts.length - 1; i++) {
+            packageNameBuilder.append(nameParts[i]).append('.');
+        }
+        if (nameParts.length > 1) {
+            packageNameBuilder
+                    .deleteCharAt(packageNameBuilder.length() - 1);
+        }
+        String packageName = packageNameBuilder.toString();
+        String className = nameParts[nameParts.length - 1];
+        ClassEntry classEntry = new ClassEntry(packageName, className);
+        fileArtifact.addClass(classEntry);
+    }
+
+    private void processManifest(JarInputStream jar, FileArtifact fileArtifact)
+            throws IOException {
+        Manifest manifest = new Manifest(jar);
+        for (Map.Entry<Object, Object> entry : manifest.getMainAttributes()
+                .entrySet()) {
+            fileArtifact.addManifestEntry(new ManifestEntry(entry.getKey()
+                    .toString(), entry.getValue().toString()));
         }
     }
 }

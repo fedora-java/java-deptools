@@ -21,6 +21,14 @@ public class ManifestEntry {
     @JoinColumn(name = "fileArtifactId")
     private FileArtifact fileArtifact;
 
+    public ManifestEntry() {
+    }
+
+    public ManifestEntry(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
     public Long getId() {
         return id;
     }
