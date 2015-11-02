@@ -12,6 +12,8 @@ cd build
 sed "s/^Release:[^%]*/&.$RELNO/" ../java-deptools.spec > java-deptools.spec
 rpmbuild -bb -D"_sourcedir $PWD/.." -D"_rpmdir $PWD" java-deptools.spec
 cat noarch/java-deptools-$VERSION*.noarch.rpm | $shell '
+set -e
 cat > java-deptools.rpm
 dnf reinstall -y java-deptools.rpm
+systemctl restart java-deptools-frontend
 '
