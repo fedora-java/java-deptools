@@ -1,10 +1,10 @@
 package org.fedoraproject.javadeptools.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -64,6 +64,6 @@ public class ManifestEntry {
 
     private String key;
 
-    @Lob
+    @Column(columnDefinition = "VARCHAR")
     private String value;
 }
