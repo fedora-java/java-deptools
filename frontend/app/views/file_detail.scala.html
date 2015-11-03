@@ -14,4 +14,21 @@
             </tr>
         }
     </table>
+    <h3>Manifest</h3>
+    @if(file.getManifestEntries.size() > 0) {
+        <table class="table table-condensed">
+            <tr>
+                <th>Key</th>
+                <th>Value</th>
+            </tr>
+            @for(entry <- file.getManifestEntries) {
+                <tr>
+                    <td>@entry.getKey</td>
+                    <td>@entry.getValue</td>
+                </tr>
+            }
+        </table>
+    } else {
+        <div>No manifest file present</div>
+    }
 }
