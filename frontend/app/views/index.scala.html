@@ -5,14 +5,30 @@
 
 @main("Search for Java classes in Fedora", "search") {
     <form method="GET" action="@routes.Application.index(1)">
-         <input type="text" name="q" value="@request.getQueryString("q").getOrElse("")"
-                autofocus="autofocus"/>
-         <select name="collection">
-            @for(collection <- collections) {
-                <option value="@collection.getName" @if(collection eq currentCollection) {selected="selected"}>@collection.getName</option>
-            }
-         </select>
-         <button type="submit">Search</button>
+        <div>
+            <label for="qtype">What to search:</label>
+            <select id="query-type" name="qtype" onchange="changeQueryType()">
+                <option value="classes" selected="selected">Classes</option>
+                <option value="manifests">Manifest entries</option>
+                @* TODO more *@
+            </select>
+            <label for="collection">Package collection:</label>
+            <select name="collection">
+                @for(collection <- collections) {
+                    <option value="@collection.getName" @if(collection eq currentCollection) {selected="selected"}>
+                        @collection.getName
+                    </option>
+                }
+            </select>
+        </div>
+        <div>
+            <label for="q"></label>
+            <input type="text" id="primary-input" name="q" value="@request.getQueryString("q").getOrElse("")"
+                   autofocus="autofocus"/>
+            <label for="q2"></label>
+            <input type="text" id="secondary-input" name="q2" value="@request.getQueryString("q2").getOrElse("")"/>
+            <button type="submit">Search</button>
+        </div>
     </form>
     @page match {
         case Some(page) => {
