@@ -46,6 +46,7 @@ public class FileArtifact {
 
     @OneToMany(mappedBy = "fileArtifact", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @OrderBy("key")
     private Set<ManifestEntry> manifestEntries = new HashSet<>();
 
     @Id
