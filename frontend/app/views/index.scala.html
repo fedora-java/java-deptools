@@ -1,9 +1,31 @@
 @(searchForm: Form[SearchData], collections: Iterable[org.fedoraproject.javadeptools.model.PackageCollection],
     currentCollection: org.fedoraproject.javadeptools.model.PackageCollection,
-    results: SearchResults
+    results: Option[SearchResults]
     )(implicit request:play.api.mvc.RequestHeader, messages: Messages)
 @import helper._
 @import implicits._
+
+@paginate[T](page: Page[T]) = {
+    <div>Showing results from @page.from to @page.to of total @page.totalCount</div>
+    @defining(request.getQueryString("q").getOrElse("")) { q =>
+        <ul class="pagination">
+            @if(page.currentPage == 1) {
+                <li class="disabled"><a href="#">Previous</a></li>
+            } else {
+                <li>
+                    <a href="@routes.Application.index(page.currentPage - 1, q, Some(currentCollection.getName))">Previous</a>
+                </li>
+            }
+            @if(page.currentPage > page.maxPage) {
+                <li class="disabled"><a href="#">Next</a></li>
+            } else {
+                <li>
+                    <a href="@routes.Application.index(page.currentPage + 1, q, Some(currentCollection.getName))">Next</a>
+                </li>
+            }
+        </ul>
+    }
+}
 
 @main("Search for Java classes in Fedora", "search") {
     @*
@@ -37,27 +59,9 @@
             <button type="submit">Search</button>
         </div>
     </form>
-    @results.classEntries match {
-        case Some(page) => {
-            <div>Showing results from @page.from to @page.to of total @page.totalCount</div>
-            @defining(request.getQueryString("q").getOrElse("")) { q =>
-                <ul class="pagination">
-                    @if(page.currentPage == 1) {
-                        <li class="disabled"><a href="#">Previous</a></li>
-                    } else {
-                        <li>
-                            <a href="@routes.Application.index(page.currentPage - 1, q, Some(currentCollection.getName))">Previous</a>
-                        </li>
-                    }
-                    @if(page.currentPage > page.maxPage) {
-                        <li class="disabled"><a href="#">Next</a></li>
-                    } else {
-                        <li>
-                            <a href="@routes.Application.index(page.currentPage + 1, q, Some(currentCollection.getName))">Next</a>
-                        </li>
-                    }
-                </ul>
-            }
+    @results match {
+        case Some(ClassResults(page)) => {
+            @paginate(page)
             <table id="class-table" class="table table-condensed">
                 <tr>
                     <th></th>
@@ -86,10 +90,8 @@
                 }
             </table>
         }
-        case None => {}
-    }
-    @results.manifestEntries match {
-        case Some(page) => {
+        case Some(ManifestResults(page)) => {
+            @paginate(page)
             <table id="manifest-table" class="table table-condensed">
                 <tr>
                     <th>Header</th>
@@ -103,6 +105,6 @@
                 }
             </table>
         }
-        case None => {}
+        case _ => {}
     }
 }

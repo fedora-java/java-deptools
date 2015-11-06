@@ -46,8 +46,9 @@ case class Page[T](content: Iterable[T], currentPage: Int, totalCount: Long) {
   val maxPage = totalCount / Page.itemsPerPage
 }
 
-case class SearchResults(classEntries: Option[Page[ClassEntry]],
-  manifestEntries: Option[Page[ManifestEntry]])
+abstract class SearchResults
+case class ClassResults (result: Page[ClassEntry]) extends SearchResults
+case class ManifestResults (result: Page[ManifestEntry]) extends SearchResults
 
 case class SearchData(queryType: String, query: String, query2: String, collectionName: String)
 
@@ -80,14 +81,14 @@ object Application extends Controller {
     val collections = collectionDao.getAllCollections.asScala;
     val collection = collections.find(_.getName() == formData.collectionName).getOrElse(collections.head)
     val content = formData match {
-      case SearchData(_, "", _, _) => SearchResults(None, None)
+      case SearchData(_, "", _, _) => None
       case SearchData("classes", q: String, _, _) =>
         val query = classDao.queryClassEntriesByName(collection, q + '%')
-        SearchResults(Page.create(query, page), None)
+        Page.create(query, page).map(ClassResults(_))
       case SearchData("manifests", q: String, q2: String, _) =>
         val query = manifestDao.queryByManifest(collection, q, '%' + q2 + '%')
-        SearchResults(None, Page.create(query, page))
-      case _ => SearchResults(None, None)
+        Page.create(query, page).map(ManifestResults(_))
+      case _ => None
     }
     Ok(views.html.index(searchForm, collections, collection, content))
   }
