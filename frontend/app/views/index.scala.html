@@ -29,7 +29,7 @@
 }
 
 @fileName(file: FileArtifact) = {
-    <a alt="@file.getPath" class="ellipsized"
+    <a title="@file.getPath" class="ellipsized"
        href="@routes.Application.fileArtifactDetail(file.getPkg.getName, file.getId)">
         @file.getPath.split("/").last
     </a>

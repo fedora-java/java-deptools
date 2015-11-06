@@ -2,8 +2,12 @@ $(function() {
     $(".ellipsized").each(function() {
         var t = this.textContent;
         if (t.length > 30) {
-            var elipsized = t.substring(0, 16) + "..." + t.substring(t.length - 13, t.length);
-            $(this).html($("<span/>").attr({"title": t}).html(elipsized));
+            var ellipsized = t.substring(0, 16) + "..." + t.substring(t.length - 13, t.length);
+            if ($(this).attr("title")) {
+                $(this).html(ellipsized);
+            } else {
+                $(this).html($("<span/>").attr({"title": t}).html(ellipsized));
+            }
         }
     });
     changeQueryType();
