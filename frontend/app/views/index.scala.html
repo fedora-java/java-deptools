@@ -4,6 +4,7 @@
     )(implicit request:play.api.mvc.RequestHeader, messages: Messages)
 @import helper._
 @import implicits._
+@import org.fedoraproject.javadeptools.model.{Package, FileArtifact}
 
 @paginate[T](page: Page[T]) = {
     <div>Showing results from @page.from to @page.to of total @page.totalCount</div>
@@ -25,6 +26,19 @@
             }
         </ul>
     }
+}
+
+@fileName(file: FileArtifact) = {
+    <a alt="@file.getPath"
+       href="@routes.Application.fileArtifactDetail(file.getPkg.getName, file.getId)">
+        @file.getPath.split("/").last
+    </a>
+}
+
+@packageName(pkg: Package) = {
+    <a href="@routes.Application.packageDetail(currentCollection.getName, pkg.getName)">
+        @pkg.getName
+    </a>
 }
 
 @main("Search for Java classes in Fedora", "search") {
@@ -73,19 +87,8 @@
                 <tr>
                     <td>@if(row.getPackageName){ @(row.getPackageName). }</td>
                     <td>@row.getClassName</td>
-                    <td>
-                        <a alt="@row.getFileArtifact.getPath"
-                           href="@routes.Application.fileArtifactDetail(row.getFileArtifact.getPkg.getName,
-                                                                        row.getFileArtifact.getId)">
-                            @row.getFileArtifact.getPath.split("/").last
-                        </a>
-                    </td>
-                    <td>
-                        <a href="@routes.Application.packageDetail(currentCollection.getName,
-                                                                   row.getFileArtifact.getPkg.getName)">
-                            @row.getFileArtifact.getPkg.getName
-                        </a>
-                    </td>
+                    <td>@fileName(row.getFileArtifact)</td>
+                    <td>@packageName(row.getFileArtifact.getPkg)</td>
                 </tr>
                 }
             </table>
@@ -94,11 +97,15 @@
             @paginate(page)
             <table id="manifest-table" class="table table-condensed">
                 <tr>
+                    <th>JAR name</th>
+                    <th>Package name</th>
                     <th>Header</th>
                     <th>Value</th>
                 </tr>
                 @for(row <-page.content) {
                 <tr>
+                    <td>@fileName(row.getFileArtifact)</td>
+                    <td>@packageName(row.getFileArtifact.getPkg)</td>
                     <td>@row.getKey</td>
                     <td>@row.getValue</td>
                 </tr>
