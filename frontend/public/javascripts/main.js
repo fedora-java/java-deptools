@@ -7,7 +7,14 @@ $(function() {
         }
     });
     changeQueryType();
+    reflowManifest();
 });
+
+function reflowManifest() {
+    $(".manifest-value").each(function() {
+        this.textContent = this.textContent.match(/.{0,80}/g).join(" ");
+    });
+}
 
 function changeQueryType() {
     var transition = {
