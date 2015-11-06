@@ -13,8 +13,8 @@ function changeQueryType() {
     var transition = {
             "classes": ["Class name:"],
             "manifests": ["Header:", "Value:"]
-    }[$("#query-type")[0].value];
-    $("#secondary-input").css("display", transition[1]? "inline": "none");
+    }[$("#qtype")[0].value];
+    $("#q2").css("display", transition[1]? "inline": "none");
     $("label[for='q']").text(transition[0]);
     $("label[for='q2']").text(transition[1] || "");
 }

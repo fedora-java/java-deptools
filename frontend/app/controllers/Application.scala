@@ -77,7 +77,8 @@ object Application extends Controller {
       "collection" -> default(text, ""))(SearchData.apply)(SearchData.unapply))
 
   def index(page: Int, q: String, collectionName: Option[String]) = Action { implicit request =>
-    val formData = searchForm.bindFromRequest.get
+    val form = searchForm.bindFromRequest
+    val formData = form.get
     val collections = collectionDao.getAllCollections.asScala;
     val collection = collections.find(_.getName() == formData.collectionName).getOrElse(collections.head)
     val content = formData match {
@@ -90,7 +91,7 @@ object Application extends Controller {
         Page.create(query, page).map(ManifestResults(_))
       case _ => None
     }
-    Ok(views.html.index(searchForm, collections, collection, content))
+    Ok(views.html.index(form, collections, collection, content))
   }
 
   def about = Action(implicit request => Ok(views.html.about()))
