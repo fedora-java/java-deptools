@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -11,7 +12,9 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table
+@Table(indexes = {
+        @Index(name = "manifestEntry_fileArtifactId", columnList = "fileArtifactId"),
+        @Index(name = "manifestEntry_key", columnList = "key") })
 public class ManifestEntry {
     @Id
     @GeneratedValue(generator = "gen")
