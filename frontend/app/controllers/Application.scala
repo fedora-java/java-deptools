@@ -6,14 +6,21 @@ import play.api.mvc.{ Controller, Action }
 import org.fedoraproject.javadeptools.Query
 import play.api.mvc.Request
 import play.api.Play
+import play.api.data.Form
+import play.api.data.Forms.{ mapping, text, default }
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
 import com.google.inject.Guice
 import org.fedoraproject.javadeptools.impl.JavaDeptoolsModule
+import org.fedoraproject.javadeptools.model.{ ClassEntry, ManifestEntry }
 import org.fedoraproject.javadeptools.data.ClassEntryDao
 import org.fedoraproject.javadeptools.data.FileArtifactDao
 import org.fedoraproject.javadeptools.data.PackageDao
 import org.fedoraproject.javadeptools.data.PackageCollectionDao
 import scala.collection.immutable.HashMap
 import com.google.inject.persist.jpa.JpaPersistModule
+import scala.collection.Searching.SearchResult
+import views.html.helper.FieldConstructor
 
 object Page {
   val itemsPerPage = 100
@@ -28,39 +35,56 @@ object Page {
   }
 }
 
+object implicits {
+  implicit val fc = FieldConstructor(views.html.field_constructor.f)
+}
+
 case class Page[T](content: Iterable[T], currentPage: Int, totalCount: Long) {
   val from = (currentPage - 1) * Page.itemsPerPage
   val to = from + content.size
   val maxPage = totalCount / Page.itemsPerPage
 }
 
+case class SearchResults(classEntries: Option[Page[ClassEntry]],
+  manifestEntries: Option[Page[ManifestEntry]])
+
+case class SearchData(queryType: String, query: String, query2: String, collectionName: String)
+
 object Application extends Controller {
 
   val dbProps = HashMap("javax.persistence.jdbc.url" ->
-                          Play.current.configuration.getString("db.default.url").get,
-                          "javax.persistence.jdbc.driver" ->
-                          Play.current.configuration.getString("db.default.driver").get,
-                          "javax.persistence.jdbc.user" ->
-                          Play.current.configuration.getString("db.default.user").get,
-                          "javax.persistence.jdbc.password" ->
-                          Play.current.configuration.getString("db.default.password").get)
+    Play.current.configuration.getString("db.default.url").get,
+    "javax.persistence.jdbc.driver" ->
+      Play.current.configuration.getString("db.default.driver").get,
+    "javax.persistence.jdbc.user" ->
+      Play.current.configuration.getString("db.default.user").get,
+    "javax.persistence.jdbc.password" ->
+      Play.current.configuration.getString("db.default.password").get)
   lazy val injector = JavaDeptoolsModule.createInjector(dbProps.asJava)
   lazy val collectionDao = injector.getInstance(classOf[PackageCollectionDao])
   lazy val classDao = injector.getInstance(classOf[ClassEntryDao])
   lazy val fileDao = injector.getInstance(classOf[FileArtifactDao])
   lazy val packageDao = injector.getInstance(classOf[PackageDao])
 
+  val searchForm = Form(
+    mapping(
+      "qtype" -> default(text, "classes"),
+      "q" -> default(text, ""),
+      "q2" -> default(text, ""),
+      "collection" -> default(text, ""))(SearchData.apply)(SearchData.unapply))
+
   def index(page: Int, q: String, collectionName: Option[String]) = Action { implicit request =>
+    val formData = searchForm.bindFromRequest.get
     val collections = collectionDao.getAllCollections.asScala;
-    val collection = collectionName.flatMap { name => collections.find(_.getName() == name) }
-                                   .getOrElse(collections.head)
-    if (q == "") {
-      Ok(views.html.index(collections, collection, None))
-    } else {
-      val query = classDao.queryClassEntriesByName(collection, q + '%')
-      val content = Page.create(query, page)
-      Ok(views.html.index(collections, collection, content))
+    val collection = collections.find(_.getName() == formData.collectionName).getOrElse(collections.head)
+    val content = formData match {
+      case SearchData(_, "", _, _) => SearchResults(None, None)
+      case SearchData("classes", q: String, _, _) =>
+        val query = classDao.queryClassEntriesByName(collection, q + '%')
+        SearchResults(Page.create(query, page), None)
+      case _ => SearchResults(None, None)
     }
+    Ok(views.html.index(searchForm, collections, collection, content))
   }
 
   def about = Action(implicit request => Ok(views.html.about()))

@@ -1,9 +1,16 @@
-@(collections: Iterable[org.fedoraproject.javadeptools.model.PackageCollection],
+@(searchForm: Form[SearchData], collections: Iterable[org.fedoraproject.javadeptools.model.PackageCollection],
     currentCollection: org.fedoraproject.javadeptools.model.PackageCollection,
-    page: Option[Page[org.fedoraproject.javadeptools.model.ClassEntry]]
-    )(implicit request:play.api.mvc.RequestHeader)
+    results: SearchResults
+    )(implicit request:play.api.mvc.RequestHeader, messages: Messages)
+@import helper._
+@import implicits._
 
 @main("Search for Java classes in Fedora", "search") {
+    @*
+    @form(action = routes.Application.index(1)) {
+        @select(searchForm("qtype"), options(List("classes", "manifests")), '_label -> "What to search")
+    }
+    *@
     <form method="GET" action="@routes.Application.index(1)">
         <div>
             <label for="qtype">What to search:</label>
@@ -30,7 +37,7 @@
             <button type="submit">Search</button>
         </div>
     </form>
-    @page match {
+    @results.classEntries match {
         case Some(page) => {
             <div>Showing results from @page.from to @page.to of total @page.totalCount</div>
             @defining(request.getQueryString("q").getOrElse("")) { q =>
