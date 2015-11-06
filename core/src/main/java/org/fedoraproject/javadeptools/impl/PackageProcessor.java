@@ -3,9 +3,9 @@ package org.fedoraproject.javadeptools.impl;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry;
@@ -26,15 +26,11 @@ public class PackageProcessor {
                 if (entry.isRegularFile() && entry.getName().endsWith(".jar")) {
                     String jarName = entry.getName().replaceFirst("^\\.", "");
                     FileArtifact fileArtifact = new FileArtifact(jarName);
-                    try {
-                        JarInputStream jarIs = new JarInputStream(is);
-                        processJar(jarIs, fileArtifact);
-                        pkg.addFileArtifact(fileArtifact);
-                    } catch (SecurityException e) {
-                        // JAR processing throws SecurityException on invalid
-                        // manifests
-                        fileArtifact.setValid(false);
-                    }
+                    // Getting manifest via JarInputStream is buggy, using Zip
+                    // instead
+                    ZipInputStream jarIs = new ZipInputStream(is);
+                    processJar(jarIs, fileArtifact);
+                    pkg.addFileArtifact(fileArtifact);
                 }
             }
         } catch (IOException e) {
@@ -43,13 +39,11 @@ public class PackageProcessor {
         return pkg;
     }
 
-    private void processJar(JarInputStream is, FileArtifact fileArtifact)
+    private void processJar(ZipInputStream is, FileArtifact fileArtifact)
             throws IOException {
-        JarEntry entry;
-        while ((entry = is.getNextJarEntry()) != null) {
+        ZipEntry entry;
+        while ((entry = is.getNextEntry()) != null) {
             if (entry.getName().equals("META-INF/MANIFEST.MF")) {
-                // JarInputStream.getManifest is buggy and doesn't always get
-                // the manifest
                 processManifest(new Manifest(is), fileArtifact);
             } else if (!entry.isDirectory()
                     && entry.getName().endsWith(".class")
@@ -57,19 +51,17 @@ public class PackageProcessor {
                 processClass(entry, fileArtifact);
             }
         }
-        processManifest(is.getManifest(), fileArtifact);
     }
 
-    private void processClass(JarEntry entry, FileArtifact fileArtifact) {
-        String[] nameParts = entry.getName()
-                .replaceFirst("\\.class$", "").split("/");
+    private void processClass(ZipEntry entry, FileArtifact fileArtifact) {
+        String[] nameParts = entry.getName().replaceFirst("\\.class$", "")
+                .split("/");
         StringBuilder packageNameBuilder = new StringBuilder();
         for (int i = 0; i < nameParts.length - 1; i++) {
             packageNameBuilder.append(nameParts[i]).append('.');
         }
         if (nameParts.length > 1) {
-            packageNameBuilder
-                    .deleteCharAt(packageNameBuilder.length() - 1);
+            packageNameBuilder.deleteCharAt(packageNameBuilder.length() - 1);
         }
         String packageName = packageNameBuilder.toString();
         String className = nameParts[nameParts.length - 1];
@@ -80,11 +72,11 @@ public class PackageProcessor {
     private void processManifest(Manifest manifest, FileArtifact fileArtifact)
             throws IOException {
         if (manifest != null) {
-        for (Map.Entry<Object, Object> entry : manifest.getMainAttributes()
-                .entrySet()) {
-            fileArtifact.addManifestEntry(new ManifestEntry(entry.getKey()
-                    .toString(), entry.getValue().toString()));
-        }
+            for (Map.Entry<Object, Object> entry : manifest.getMainAttributes()
+                    .entrySet()) {
+                fileArtifact.addManifestEntry(new ManifestEntry(entry.getKey()
+                        .toString(), entry.getValue().toString()));
+            }
         }
     }
 }
