@@ -29,7 +29,7 @@
 }
 
 @fileName(file: FileArtifact) = {
-    <a alt="@file.getPath"
+    <a alt="@file.getPath" class="ellipsized"
        href="@routes.Application.fileArtifactDetail(file.getPkg.getName, file.getId)">
         @file.getPath.split("/").last
     </a>
@@ -71,7 +71,7 @@
                 </tr>
                 @for(row <-page.content) {
                 <tr>
-                    <td>@if(row.getPackageName){ @(row.getPackageName). }</td>
+                    <td class="ellipsized">@if(row.getPackageName){ @(row.getPackageName). }</td>
                     <td>@row.getClassName</td>
                     <td>@fileName(row.getFileArtifact)</td>
                     <td>@packageName(row.getFileArtifact.getPkg)</td>

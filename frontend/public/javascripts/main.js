@@ -1,5 +1,5 @@
 $(function() {
-    $("#class-table tr td:first-child").each(function() {
+    $(".ellipsized").each(function() {
         var t = this.textContent;
         if (t.length > 30) {
             var elipsized = t.substring(0, 16) + "..." + t.substring(t.length - 13, t.length);
