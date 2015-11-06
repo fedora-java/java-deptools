@@ -47,15 +47,17 @@ public class PackageProcessor {
             throws IOException {
         JarEntry entry;
         while ((entry = is.getNextJarEntry()) != null) {
-            // There is JarInputStream.getManifest, but it's buggy
             if (entry.getName().equals("META-INF/MANIFEST.MF")) {
-                processManifest(is, fileArtifact);
+                // JarInputStream.getManifest is buggy and doesn't always get
+                // the manifest
+                processManifest(new Manifest(is), fileArtifact);
             } else if (!entry.isDirectory()
                     && entry.getName().endsWith(".class")
                     && !entry.getName().contains("$")) {
                 processClass(entry, fileArtifact);
             }
         }
+        processManifest(is.getManifest(), fileArtifact);
     }
 
     private void processClass(JarEntry entry, FileArtifact fileArtifact) {
@@ -75,13 +77,14 @@ public class PackageProcessor {
         fileArtifact.addClass(classEntry);
     }
 
-    private void processManifest(JarInputStream jar, FileArtifact fileArtifact)
+    private void processManifest(Manifest manifest, FileArtifact fileArtifact)
             throws IOException {
-        Manifest manifest = new Manifest(jar);
+        if (manifest != null) {
         for (Map.Entry<Object, Object> entry : manifest.getMainAttributes()
                 .entrySet()) {
             fileArtifact.addManifestEntry(new ManifestEntry(entry.getKey()
                     .toString(), entry.getValue().toString()));
+        }
         }
     }
 }
