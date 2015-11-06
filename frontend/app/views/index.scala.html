@@ -83,7 +83,24 @@
                         </a>
                     </td>
                 </tr>
-            }
+                }
+            </table>
+        }
+        case None => {}
+    }
+    @results.manifestEntries match {
+        case Some(page) => {
+            <table id="manifest-table" class="table table-condensed">
+                <tr>
+                    <th>Header</th>
+                    <th>Value</th>
+                </tr>
+                @for(row <-page.content) {
+                <tr>
+                    <td>@row.getKey</td>
+                    <td>@row.getValue</td>
+                </tr>
+                }
             </table>
         }
         case None => {}

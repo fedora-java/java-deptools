@@ -17,6 +17,7 @@ import org.fedoraproject.javadeptools.data.ClassEntryDao
 import org.fedoraproject.javadeptools.data.FileArtifactDao
 import org.fedoraproject.javadeptools.data.PackageDao
 import org.fedoraproject.javadeptools.data.PackageCollectionDao
+import org.fedoraproject.javadeptools.data.ManifestEntryDao
 import scala.collection.immutable.HashMap
 import com.google.inject.persist.jpa.JpaPersistModule
 import scala.collection.Searching.SearchResult
@@ -65,6 +66,7 @@ object Application extends Controller {
   lazy val classDao = injector.getInstance(classOf[ClassEntryDao])
   lazy val fileDao = injector.getInstance(classOf[FileArtifactDao])
   lazy val packageDao = injector.getInstance(classOf[PackageDao])
+  lazy val manifestDao = injector.getInstance(classOf[ManifestEntryDao])
 
   val searchForm = Form(
     mapping(
@@ -82,6 +84,9 @@ object Application extends Controller {
       case SearchData("classes", q: String, _, _) =>
         val query = classDao.queryClassEntriesByName(collection, q + '%')
         SearchResults(Page.create(query, page), None)
+      case SearchData("manifests", q: String, q2: String, _) =>
+        val query = manifestDao.queryByManifest(collection, q, '%' + q2 + '%')
+        SearchResults(None, Page.create(query, page))
       case _ => SearchResults(None, None)
     }
     Ok(views.html.index(searchForm, collections, collection, content))
