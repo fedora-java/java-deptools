@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 kojipath="https://kojipkgs.fedoraproject.org"
 sync_repo() {
     mkdir -p $1
