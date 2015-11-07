@@ -1,6 +1,6 @@
 $(function() {
     $(".ellipsized").each(function() {
-        var t = this.textContent;
+        var t = this.textContent.trim();
         if (t.length > 30) {
             var ellipsized = t.substring(0, 16) + "..." + t.substring(t.length - 13, t.length);
             if ($(this).attr("title")) {
