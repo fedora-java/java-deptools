@@ -3,6 +3,8 @@ name := "java-deptools-core"
 fork in run := true
 
 libraryDependencies ++= Seq(
+  "org.apache.logging.log4j" % "log4j-api" % "2.3",
+  "org.apache.logging.log4j" % "log4j-core" % "2.3",
   "commons-cli" % "commons-cli" % "1.2",
   "org.apache.commons" % "commons-compress" % "1.4.1",
   "commons-lang" % "commons-lang" % "2.6",

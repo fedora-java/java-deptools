@@ -1,8 +1,9 @@
 <configuration>
   <loggers>
-    <root level="warn">
+    <root level="INFO">
       <appenderRef ref="console"/>
     </root>
+    <logger name="org.hibernate" level="WARN"/>
   </loggers>
   <appenders>
     <console name="console" target="SYSTEM_OUT">
