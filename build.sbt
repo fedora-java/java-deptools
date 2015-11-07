@@ -12,7 +12,8 @@ lazy val root = (project in file(".")).
   )
 
 lazy val core = (project in file("core")).
-  settings(commonSettings: _*)
+  settings(commonSettings: _*).
+  enablePlugins(JavaAppPackaging)
 
 lazy val frontend = (project in file("frontend")).
   settings(commonSettings: _*).
