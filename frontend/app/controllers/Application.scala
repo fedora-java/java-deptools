@@ -109,7 +109,7 @@ object Application extends Controller {
     }
   }
 
-  def fileArtifactDetail(pkgName: String, fileId: Long) = Action { implicit request =>
+  def fileArtifactDetail(fileId: Long) = Action { implicit request =>
     val file = fileDao.findById(fileId);
     Ok(views.html.file_detail(file))
   }

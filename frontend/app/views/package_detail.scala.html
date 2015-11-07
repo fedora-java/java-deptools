@@ -10,8 +10,7 @@
         @for(jar <- pkg.getFileArtifacts) {
             <tr>
                 <td>
-                    <a href="@routes.Application.fileArtifactDetail(jar.getPkg.getName,
-                                                                    jar.getId)">
+                    <a href="@routes.Application.fileArtifactDetail(jar.getId)">
                         @jar.getPath
                     </a>
                 </td>
