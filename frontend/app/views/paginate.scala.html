@@ -1,0 +1,22 @@
+@(page: PageTrait)(implicit request:play.api.mvc.RequestHeader)
+<div>Showing results from @page.from to @page.to of total @page.totalCount</div>
+@defining("&" + (request.queryString - "page")
+                .map{ case (k, v) => k + "=" + v.mkString }
+                .mkString("&")) { rest =>
+    <ul class="pagination">
+        @if(page.currentPage == 1) {
+            <li class="disabled"><a href="#">Previous</a></li>
+        } else {
+            <li>
+                <a href="?page=@(page.currentPage - 1)@rest">Previous</a>
+            </li>
+        }
+        @if(page.currentPage > page.maxPage) {
+            <li class="disabled"><a href="#">Next</a></li>
+        } else {
+            <li>
+                <a href="?page=@(page.currentPage + 1)@rest">Next</a>
+            </li>
+        }
+    </ul>
+}

@@ -6,28 +6,6 @@
 @import implicits._
 @import org.fedoraproject.javadeptools.model.{ Package, FileArtifact }
 
-@paginate[T](page: Page[T]) = {
-    <div>Showing results from @page.from to @page.to of total @page.totalCount</div>
-    @defining(request.getQueryString("q").getOrElse("")) { q =>
-        <ul class="pagination">
-            @if(page.currentPage == 1) {
-                <li class="disabled"><a href="#">Previous</a></li>
-            } else {
-                <li>
-                    <a href="@routes.Application.index(page.currentPage - 1, q, Some(currentCollection.getName))">Previous</a>
-                </li>
-            }
-            @if(page.currentPage > page.maxPage) {
-                <li class="disabled"><a href="#">Next</a></li>
-            } else {
-                <li>
-                    <a href="@routes.Application.index(page.currentPage + 1, q, Some(currentCollection.getName))">Next</a>
-                </li>
-            }
-        </ul>
-    }
-}
-
 @fileName(file: FileArtifact) = {
     <a title="@file.getPath" class="ellipsized"
        href="@routes.Application.fileArtifactDetail(file.getId)">

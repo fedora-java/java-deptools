@@ -42,7 +42,15 @@ object implicits {
   implicit val fc = FieldConstructor(views.html.field_constructor.f)
 }
 
-case class Page[T](content: Iterable[T], currentPage: Int, totalCount: Long) {
+trait PageTrait {
+  def currentPage: Int
+  def totalCount: Long
+  def from: Int
+  def to: Int
+  def maxPage: Long
+}
+
+case class Page[T](content: Iterable[T], currentPage: Int, totalCount: Long) extends PageTrait {
   val from = (currentPage - 1) * Page.itemsPerPage
   val to = from + content.size
   val maxPage = totalCount / Page.itemsPerPage
@@ -78,7 +86,7 @@ object Application extends Controller {
       "q2" -> default(text, ""),
       "collection" -> default(text, ""))(SearchData.apply)(SearchData.unapply))
 
-  def index(page: Int, q: String, collectionName: Option[String]) = Action { implicit request =>
+  def index(page: Int) = Action { implicit request =>
     val form = searchForm.bindFromRequest
     val formData = form.get
     val collections = collectionDao.getAllCollections.asScala;
