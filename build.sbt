@@ -1,14 +1,7 @@
-import com.typesafe.sbt.packager.archetypes.ServerLoader
-
 lazy val commonSettings = Seq(
   organization := "org.fedoraproject",
   version := "0",
-  scalaVersion := "2.11.6",
-  rpmVendor := "typesafe",
-  rpmLicense := Some("ASL 2.0"),
-  rpmAutoprov := "no",
-  rpmRequirements := Seq("java-headless"),
-  serverLoading in Rpm := ServerLoader.Systemd
+  scalaVersion := "2.11.6"
 )
 
 lazy val root = (project in file(".")).
@@ -16,12 +9,10 @@ lazy val root = (project in file(".")).
   settings(commonSettings: _*).
   settings(
     name := "java-deptools"
-  ).
-  enablePlugins(RpmPlugin)
+  )
 
 lazy val core = (project in file("core")).
-  settings(commonSettings: _*).
-  enablePlugins(JavaAppPackaging)
+  settings(commonSettings: _*)
 
 lazy val frontend = (project in file("frontend")).
   settings(commonSettings: _*).
