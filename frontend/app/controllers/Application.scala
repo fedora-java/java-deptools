@@ -1,26 +1,28 @@
 package controllers
 
-import collection.JavaConverters._
-import java.io.File
-import play.api.mvc.{ Controller, Action }
+import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.collection.JavaConverters.mapAsJavaMapConverter
+
 import org.fedoraproject.javadeptools.Query
-import play.api.mvc.Request
-import play.api.Play
-import play.api.data.Form
-import play.api.data.Forms.{ mapping, text, default }
-import play.api.Play.current
-import play.api.i18n.Messages.Implicits._
-import com.google.inject.Guice
-import org.fedoraproject.javadeptools.impl.JavaDeptoolsModule
-import org.fedoraproject.javadeptools.model.{ ClassEntry, ManifestEntry }
 import org.fedoraproject.javadeptools.data.ClassEntryDao
 import org.fedoraproject.javadeptools.data.FileArtifactDao
-import org.fedoraproject.javadeptools.data.PackageDao
-import org.fedoraproject.javadeptools.data.PackageCollectionDao
 import org.fedoraproject.javadeptools.data.ManifestEntryDao
-import scala.collection.immutable.HashMap
-import com.google.inject.persist.jpa.JpaPersistModule
-import scala.collection.Searching.SearchResult
+import org.fedoraproject.javadeptools.data.PackageCollectionDao
+import org.fedoraproject.javadeptools.data.PackageDao
+import org.fedoraproject.javadeptools.impl.JavaDeptoolsModule
+import org.fedoraproject.javadeptools.model.ClassEntry
+import org.fedoraproject.javadeptools.model.ManifestEntry
+
+import play.api.Play.current
+import play.api.Play
+import play.api.data.Form
+import play.api.data.Forms.default
+import play.api.data.Forms.mapping
+import play.api.data.Forms.text
+import play.api.i18n.Messages.Implicits.applicationMessages
+import play.api.mvc.Action
+import play.api.mvc.Controller
+import play.api.mvc.Request
 import views.html.helper.FieldConstructor
 
 object Page {
@@ -47,14 +49,14 @@ case class Page[T](content: Iterable[T], currentPage: Int, totalCount: Long) {
 }
 
 abstract class SearchResults
-case class ClassResults (result: Page[ClassEntry]) extends SearchResults
-case class ManifestResults (result: Page[ManifestEntry]) extends SearchResults
+case class ClassResults(result: Page[ClassEntry]) extends SearchResults
+case class ManifestResults(result: Page[ManifestEntry]) extends SearchResults
 
 case class SearchData(queryType: String, query: String, query2: String, collectionName: String)
 
 object Application extends Controller {
 
-  val dbProps = HashMap("javax.persistence.jdbc.url" ->
+  val dbProps = Map("javax.persistence.jdbc.url" ->
     Play.current.configuration.getString("db.default.url").get,
     "javax.persistence.jdbc.driver" ->
       Play.current.configuration.getString("db.default.driver").get,

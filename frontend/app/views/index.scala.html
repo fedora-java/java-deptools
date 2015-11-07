@@ -4,7 +4,7 @@
     )(implicit request:play.api.mvc.RequestHeader, messages: Messages)
 @import helper._
 @import implicits._
-@import org.fedoraproject.javadeptools.model.{Package, FileArtifact}
+@import org.fedoraproject.javadeptools.model.{ Package, FileArtifact }
 
 @paginate[T](page: Page[T]) = {
     <div>Showing results from @page.from to @page.to of total @page.totalCount</div>
