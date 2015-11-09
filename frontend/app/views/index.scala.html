@@ -35,6 +35,9 @@
             @inputText(searchForm("q2"))
             <button type="submit">Search</button>
         </div>
+            @checkbox(searchForm("cs"), '_text -> "Case sensitive", '_showConstraints -> false, '_label -> None)
+        <div>
+        </div>
     }
 
     @results match {

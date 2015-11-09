@@ -16,11 +16,13 @@ import org.fedoraproject.javadeptools.model.ManifestEntry
 import play.api.Play.current
 import play.api.Play
 import play.api.data.Form
+import play.api.data.Forms.boolean
 import play.api.data.Forms.default
 import play.api.data.Forms.mapping
 import play.api.data.Forms.text
 import play.api.i18n.Messages.Implicits.applicationMessages
 import play.api.mvc.Action
+import play.api.mvc.AnyContent
 import play.api.mvc.Controller
 import play.api.mvc.Request
 import views.html.helper.FieldConstructor
@@ -57,10 +59,16 @@ case class Page[T](content: Iterable[T], currentPage: Int, totalCount: Long) ext
 }
 
 abstract class SearchResults
+object SearchResults {
+  def create[T](query: Query[T], pageNo: Int, ctor: Page[T] => SearchResults)(implicit formData: SearchData, request: Request[AnyContent]) = {
+    Page.create(query.caseSensitive(formData.caseSensitive), pageNo).map(ctor)
+  }
+}
 case class ClassResults(result: Page[ClassEntry]) extends SearchResults
 case class ManifestResults(result: Page[ManifestEntry]) extends SearchResults
 
-case class SearchData(queryType: String, query: String, query2: String, collectionName: String)
+case class SearchData(queryType: String, query: String, query2: String,
+  collectionName: String, caseSensitive: Boolean)
 
 object Application extends Controller {
 
@@ -84,21 +92,21 @@ object Application extends Controller {
       "qtype" -> default(text, "classes"),
       "q" -> default(text, ""),
       "q2" -> default(text, ""),
-      "collection" -> default(text, ""))(SearchData.apply)(SearchData.unapply))
+      "collection" -> default(text, ""),
+      "cs" -> default(boolean, false))(SearchData.apply)(SearchData.unapply))
 
   def index(page: Int) = Action { implicit request =>
     val form = searchForm.bindFromRequest
-    val formData = form.get
+    implicit val formData = form.get
     val collections = collectionDao.getAllCollections.asScala;
     val collection = collections.find(_.getName() == formData.collectionName).getOrElse(collections.head)
-    val content = formData match {
-      case SearchData(_, "", _, _) => None
-      case SearchData("classes", q: String, _, _) =>
-        val query = classDao.queryClassEntriesByName(collection, q + '%')
-        Page.create(query, page).map(ClassResults(_))
-      case SearchData("manifests", q: String, q2: String, _) =>
-        val query = manifestDao.queryByManifest(collection, q, '%' + q2 + '%')
-        Page.create(query, page).map(ManifestResults(_))
+    val content = formData.queryType match {
+      case "classes" =>
+        val query = classDao.queryClassEntriesByName(collection, formData.query + '%')
+        SearchResults.create(query, page, ClassResults)
+      case "manifests" =>
+        val query = manifestDao.queryByManifest(collection, formData.query, '%' + formData.query2 + '%')
+        SearchResults.create(query, page, ManifestResults)
       case _ => None
     }
     Ok(views.html.index(form, collections, collection, content))
