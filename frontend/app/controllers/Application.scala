@@ -100,15 +100,17 @@ object Application extends Controller {
     implicit val formData = form.get
     val collections = collectionDao.getAllCollections.asScala;
     val collection = collections.find(_.getName() == formData.collectionName).getOrElse(collections.head)
-    val content = formData.queryType match {
-      case "classes" =>
-        val query = classDao.queryClassEntriesByName(collection, formData.query + '%')
-        SearchResults.create(query, page, ClassResults)
-      case "manifests" =>
-        val query = manifestDao.queryByManifest(collection, formData.query, '%' + formData.query2 + '%')
-        SearchResults.create(query, page, ManifestResults)
-      case _ => None
-    }
+    val content = if (formData.query.length > 0) {
+      formData.queryType match {
+        case "classes" =>
+          val query = classDao.queryClassEntriesByName(collection, formData.query + '%')
+          SearchResults.create(query, page, ClassResults)
+        case "manifests" =>
+          val query = manifestDao.queryByManifest(collection, formData.query, '%' + formData.query2 + '%')
+          SearchResults.create(query, page, ManifestResults)
+        case _ => None
+      }
+    } else None
     Ok(views.html.index(form, collections, collection, content))
   }
 
