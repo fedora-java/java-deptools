@@ -47,4 +47,11 @@ public interface Query<T> {
      * @return number of query results
      */
     public long getTotal();
+
+    /**
+     * Returns a single result item from a query
+     *
+     * @return single object or null if query doesn't return anything
+     */
+    public T getSingleResult();
 }

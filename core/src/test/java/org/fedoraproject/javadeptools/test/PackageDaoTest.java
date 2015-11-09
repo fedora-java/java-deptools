@@ -24,7 +24,8 @@ public class PackageDaoTest extends AbstractTest {
 
     @Test
     public void testGetPackage() {
-        Package pkg = packageDao.getPackageByName(collection, "rnv");
+        Package pkg = packageDao.queryPackagesByName(collection, "rnv")
+                .getSingleResult();
         assertEquals("rnv", pkg.getName());
     }
 

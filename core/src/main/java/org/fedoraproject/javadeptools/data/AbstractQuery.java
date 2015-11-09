@@ -1,5 +1,6 @@
 package org.fedoraproject.javadeptools.data;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.fedoraproject.javadeptools.Query;
@@ -16,4 +17,11 @@ public abstract class AbstractQuery<T> implements Query<T> {
         return getResults(0, limit);
     }
 
+    @Override
+    public T getSingleResult() {
+        Iterator<T> it = getResults(0).iterator();
+        if (it.hasNext())
+            return it.next();
+        return null;
+    }
 }

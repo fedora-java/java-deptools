@@ -109,7 +109,7 @@ object Application extends Controller {
   def packageDetail(collectionName: String, name: String) = Action { implicit request =>
     val pkg = for {
       collection <- Option(collectionDao.getCollectionByName(collectionName))
-      pkg <- Option(packageDao.getPackageByName(collection, name))
+      pkg <- Option(packageDao.queryPackagesByName(collection, name).getSingleResult)
     } yield pkg
     pkg match {
       case None => NotFound
