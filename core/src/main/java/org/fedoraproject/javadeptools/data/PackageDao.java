@@ -44,23 +44,17 @@ public class PackageDao {
 
     private static class NameComponent extends QueryComponent<Package> {
         private String name;
-        private boolean glob;
         private ParameterExpression<String> nameParameter;
 
-        public NameComponent(String name, boolean glob) {
+        public NameComponent(String name) {
             this.name = name;
-            this.glob = glob;
         }
 
         @Override
         public Predicate[] getPredicates() {
             nameParameter = cb.parameter(String.class);
             Predicate pred;
-            if (glob) {
-                pred = cb.like(root.get("name"), nameParameter);
-            } else {
-                pred = cb.equal(root.get("name"), nameParameter);
-            }
+            pred = xlike(root.get("name"), nameParameter);
             return new Predicate[] { pred };
         }
 

@@ -54,4 +54,12 @@ public interface Query<T> {
      * @return single object or null if query doesn't return anything
      */
     public T getSingleResult();
+
+    /**
+     * Sets whether string comparisons should be case sensitive (default)
+     *
+     * @param caseSensitive
+     * @return query itself to support chaining
+     */
+    public Query<T> caseSensitive(boolean caseSensitive);
 }

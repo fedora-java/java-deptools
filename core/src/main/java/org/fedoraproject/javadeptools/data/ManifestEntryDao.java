@@ -66,8 +66,8 @@ public class ManifestEntryDao {
         public Predicate[] getPredicates() {
             headerParameter = cb.parameter(String.class);
             valueParameter = cb.parameter(String.class);
-            return new Predicate[] { cb.like(root.get("key"), headerParameter),
-                    cb.like(root.get("value"), valueParameter) };
+            return new Predicate[] { xlike(root.get("key"), headerParameter),
+                    xlike(root.get("value"), valueParameter) };
         }
 
         @Override

@@ -70,7 +70,7 @@ public class ClassEntryDao {
         @Override
         public Predicate[] getPredicates() {
             globParameter = cb.parameter(String.class);
-            return new Predicate[] { cb.like(root.get("className"),
+            return new Predicate[] { xlike(root.get("className"),
                     globParameter) };
         }
 

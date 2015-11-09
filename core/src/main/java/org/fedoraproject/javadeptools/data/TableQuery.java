@@ -12,6 +12,8 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.fedoraproject.javadeptools.Query;
+
 public class TableQuery<T> extends AbstractQuery<T> {
     private Class<T> clazz;
     private EntityManager em;
@@ -76,5 +78,11 @@ public class TableQuery<T> extends AbstractQuery<T> {
         TypedQuery<Long> query = em.createQuery(cq);
         setQueryParameters(query);
         return query.getSingleResult();
+    }
+
+    @Override
+    public Query<T> caseSensitive(boolean caseSensitive) {
+        components.forEach(c -> c.setCaseSensitive(caseSensitive));
+        return this;
     }
 }
