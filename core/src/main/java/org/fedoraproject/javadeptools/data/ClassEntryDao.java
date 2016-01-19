@@ -32,8 +32,7 @@ public class ClassEntryDao {
         @Override
         public Predicate[] getPredicates() {
             collectionParameter = cb.parameter(PackageCollection.class);
-            return new Predicate[] { cb.equal(
-                    packageJoin.get("packageCollection"), collectionParameter) };
+            return new Predicate[] { cb.equal(packageJoin.get("packageCollection"), collectionParameter) };
         }
 
         @Override
@@ -54,8 +53,7 @@ public class ClassEntryDao {
 
         @Override
         public Order[] getOrder() {
-            return new Order[] { cb.asc(root.get("className")),
-                    cb.asc(root.get("packageName")) };
+            return new Order[] { cb.asc(root.get("className")), cb.asc(root.get("packageName")) };
         }
     }
 
@@ -70,8 +68,9 @@ public class ClassEntryDao {
         @Override
         public Predicate[] getPredicates() {
             globParameter = cb.parameter(String.class);
-            return new Predicate[] { xlike(root.get("className"),
-                    globParameter) };
+            return new Predicate[] { cb.or(xlike(root.get("className"), globParameter),
+                    xlike(cb.concat(cb.concat(root.get("packageName"), cb.literal(".")), root.get("className")),
+                            globParameter)) };
         }
 
         @Override
@@ -80,8 +79,7 @@ public class ClassEntryDao {
         }
     }
 
-    public Query<ClassEntry> queryClassEntriesByName(
-            PackageCollection collection, String glob) {
+    public Query<ClassEntry> queryClassEntriesByName(PackageCollection collection, String glob) {
         TableQuery<ClassEntry> query = new TableQuery<>(ClassEntry.class, em);
         query.addComponent(new BaseComponent(collection));
         query.addComponent(new NameComponent(glob));
