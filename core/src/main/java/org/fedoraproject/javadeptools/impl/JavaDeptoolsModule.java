@@ -21,6 +21,7 @@ public class JavaDeptoolsModule extends AbstractModule {
         Injector injector = Guice.createInjector(new JavaDeptoolsModule(),
                 jpaPersistModule);
         injector.getInstance(PersistenceInitializer.class);
+        injector.getInstance(CustomDDLInitializer.class).initialize();
         return injector;
     }
 
