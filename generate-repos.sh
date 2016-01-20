@@ -7,14 +7,13 @@ sync_repo() {
     local repopath="$kojipath/repos/$1-build/latest/x86_64"
     local java_pkgs=$(repoquery --repoid $1 --repofrompath "$1,$repopath" \
                       --archlist x86_64,noarch --whatprovides '**.jar' \
-                      --qf="%{base_package_name}#%{name}#%{version}#%{release}#%{arch}"| sort -u)
-    files=""
+                      --qf="%{relativepath}"| sort -u)
+    local files=""
     for pkg in $java_pkgs; do
-        IFS='#' read srcname name version release arch <<< "$pkg"
-        filename="$name-$version-${release}.${arch}.rpm"
+        local filename=`basename "$pkg"`
         files="$filename"$'\n'"$files"
         if [ ! -f "$filename" ]; then
-            wget -q "$kojipath/packages/$srcname/$version/$release/$arch/$filename"
+            wget -nv "$kojipath/$pkg"
         fi
     done
     comm -13 <(sort <<< "$files") <(ls -1 *.rpm | sort) | xargs rm
