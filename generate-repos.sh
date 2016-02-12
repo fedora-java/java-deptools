@@ -16,7 +16,7 @@ sync_repo() {
             wget -nv "$kojipath/$pkg"
         fi
     done
-    comm -13 <(sort <<< "$files") <(ls -1 *.rpm | sort) | xargs rm
+    comm -13 <(sort <<< "$files") <(ls -1 *.rpm | sort) | xargs --no-run-if-empty rm
     popd
 }
 
