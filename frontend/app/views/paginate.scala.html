@@ -1,4 +1,4 @@
-@(page: PageTrait)(implicit request:play.api.mvc.RequestHeader)
+@(page: org.fedoraproject.javadeptools.PageTrait)(implicit request:play.api.mvc.RequestHeader)
 @import helper.urlEncode
 <div>Showing results from @page.from to @page.to of total @page.totalCount</div>
 @defining("&" + (request.queryString - "page")

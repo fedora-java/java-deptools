@@ -1,21 +1,21 @@
-@(searchForm: Form[SearchData], collections: Iterable[org.fedoraproject.javadeptools.model.PackageCollection],
-    currentCollection: org.fedoraproject.javadeptools.model.PackageCollection,
+@(searchForm: Form[SearchData], collections: Iterable[org.fedoraproject.javadeptools.CollectionResult],
+    currentCollection: org.fedoraproject.javadeptools.CollectionResult,
     results: Option[SearchResults]
     )(implicit request:play.api.mvc.RequestHeader, messages: Messages)
 @import helper._
 @import implicits._
-@import org.fedoraproject.javadeptools.model.{ Package, FileArtifact }
+@import org.fedoraproject.javadeptools.{ ClassResultJoined, ManifestResultJoined }
 
-@fileName(file: FileArtifact) = {
-    <a title="@file.getPath" class="ellipsized"
-       href="@routes.Application.fileArtifactDetail(file.getId)">
-        @file.getPath.split("/").last
+@fileName(fileId: Int, filePath: String) = {
+    <a title="@filePath" class="ellipsized"
+       href="@routes.Application.fileArtifactDetail(fileId)">
+        @filePath.split("/").last
     </a>
 }
 
-@packageName(pkg: Package) = {
-    <a href="@routes.Application.packageDetail(currentCollection.getName, pkg.getName)">
-        @pkg.getName
+@packageName(name: String) = {
+    <a href="@routes.Application.packageDetail(currentCollection.name, name)">
+        @name
     </a>
 }
 
@@ -27,7 +27,7 @@
                     '_label -> "What to search",
                     'onChange -> "changeQueryType()")
             @select(searchForm("collection"),
-                    options(collections.map(_.getName).toList),
+                    options(collections.map(_.name).toList),
                     '_label -> "Package collection")
         </div>
         <div>
@@ -50,12 +50,12 @@
                     <th>JAR name</th>
                     <th>Package name</th>
                 </tr>
-                @for(row <-page.content) {
+                @for(row <-page.items) {
                 <tr>
-                    <td class="ellipsized">@if(row.getPackageName){ @(row.getPackageName). }</td>
-                    <td>@row.getClassName</td>
-                    <td>@fileName(row.getFileArtifact)</td>
-                    <td>@packageName(row.getFileArtifact.getPkg)</td>
+                    <td class="ellipsized">@if(row.namespace){ @(row.namespace). }</td>
+                    <td>@row.className</td>
+                    <td>@fileName(row.fileId, row.filePath)</td>
+                    <td>@packageName(row.packageName)</td>
                 </tr>
                 }
             </table>
@@ -69,12 +69,12 @@
                     <th>Header</th>
                     <th>Value</th>
                 </tr>
-                @for(row <-page.content) {
+                @for(row <-page.items) {
                 <tr>
-                    <td>@fileName(row.getFileArtifact)</td>
-                    <td>@packageName(row.getFileArtifact.getPkg)</td>
-                    <td class="manifest-header">@row.getKey</td>
-                    <td class="manifest-value">@row.getValue</td>
+                    <td>@fileName(row.fileId, row.filePath)</td>
+                    <td>@packageName(row.packageName)</td>
+                    <td class="manifest-header">@row.key</td>
+                    <td class="manifest-value">@row.value</td>
                 </tr>
                 }
             </table>

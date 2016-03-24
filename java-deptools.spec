@@ -36,6 +36,8 @@ cp -pr java-deptools-frontend-%{version}/lib/* %{buildroot}%{_javadir}/%{name}/
 
 install -m755 generate-repos.sh %{buildroot}%{_bindir}/java-deptools-repogen
 install -m644 java-deptools-frontend.service %{buildroot}%{_unitdir}/
+mkdir -p %{buildroot}%{_datadir}/%{name}
+install -m644 core/schema.sql %{buildroot}%{_datadir}/%{name}/
 
 %pre
 getent group %{name} >/dev/null || groupadd -r %{name}
@@ -55,6 +57,7 @@ exit 0
 
 %files
 %{_bindir}/%{name}*
+%{_datadir}/%{name}
 %{_javadir}/%{name}
 %{_sysconfdir}/%{name}
 %attr(755, %{name}, %{name}) %{_sharedstatedir}/%{name}

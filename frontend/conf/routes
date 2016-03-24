@@ -5,7 +5,7 @@
 GET     /about                      controllers.Application.about
 GET     /                           controllers.Application.index(page: Int ?= 1)
 GET     /package/:name              controllers.Application.packageDetail(collection: String, name: String)
-GET     /file/:fileId               controllers.Application.fileArtifactDetail(fileId: Long)
+GET     /file/:fileId               controllers.Application.fileArtifactDetail(fileId: Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

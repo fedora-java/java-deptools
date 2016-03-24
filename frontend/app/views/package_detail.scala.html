@@ -1,20 +1,20 @@
-@(pkg: org.fedoraproject.javadeptools.model.Package)
+@(pkg: org.fedoraproject.javadeptools.PackageResult, files: Iterable[org.fedoraproject.javadeptools.FileResultWithCount])
 @main("Package detail") {
-    <h2>Package - @pkg.getName</h2>
+    <h2>Package - @pkg.name</h2>
     <h3>Contained file artifacts</h3>
     <table class="table table-condensed">
         <tr>
             <th>File path</th>
             <th>Class file count</th>
         </tr>
-        @for(jar <- pkg.getFileArtifacts) {
+        @for(jar <- files) {
             <tr>
                 <td>
-                    <a href="@routes.Application.fileArtifactDetail(jar.getId)">
-                        @jar.getPath
+                    <a href="@routes.Application.fileArtifactDetail(jar.id)">
+                        @jar.path
                     </a>
                 </td>
-                <td>@jar.getClasses.size</td>
+                <td>@jar.classCount</td>
             </tr>
         }
     </table>

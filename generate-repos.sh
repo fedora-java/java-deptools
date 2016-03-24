@@ -23,6 +23,6 @@ sync_repo() {
 for repo; do
     sync_repo $repo
     wait # don't run multiple JVMs
-    java-deptools --database jdbc:postgresql:java-deptools --collection $repo build $repo &
+    java-deptools build --collection $repo $repo &
 done
 wait
