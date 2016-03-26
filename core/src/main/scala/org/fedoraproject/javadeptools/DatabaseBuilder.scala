@@ -52,12 +52,18 @@ object DatabaseBuilder {
         classParams += Seq('namespace -> namespace, 'class_name -> className)
       }
     }
-    if (classParams.nonEmpty)
-      BatchSql(s"""INSERT INTO class_entry(file_artifact_id, namespace, class_name, collection_id)
-                 VALUES ($fileId, {namespace}, {class_name}, $collectionId)""", classParams).execute()
-    if (manifestParams.nonEmpty)
-      BatchSql(s"""INSERT INTO manifest_entry(file_artifact_id, key, value, collection_id)
-                 VALUES ($fileId, {key}, {value}, $collectionId)""", manifestParams).execute()
+    classParams.toList match {
+      case x :: xs =>
+        BatchSql(s"""INSERT INTO class_entry(file_artifact_id, namespace, class_name, collection_id)
+                 VALUES ($fileId, {namespace}, {class_name}, $collectionId)""", x, xs: _*).execute()
+      case _ => ()
+    }
+    manifestParams.toList match {
+      case x :: xs =>
+        BatchSql(s"""INSERT INTO manifest_entry(file_artifact_id, key, value, collection_id)
+                 VALUES ($fileId, {key}, {value}, $collectionId)""", x, xs: _*).execute()
+      case _ => ()
+    }
   }
 
   private def processPackage(url: URL, collectionId: Int)(implicit connection: Connection) = {
@@ -92,7 +98,7 @@ object DatabaseBuilder {
   def buildFromPath(collectionName: String, path: File)(implicit ds: DataSource) {
     val rpms = findRpms(path)
     if (rpms.isEmpty) throw new RuntimeException(s"No RPMs found in $path")
-    buildFromURLs(collectionName, Seq(path.toURL))
+    buildFromURLs(collectionName, Seq(path.toURI.toURL))
   }
 
   def buildFromURLs(collectionName: String, urls: Iterable[URL])(implicit ds: DataSource) {
