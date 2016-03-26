@@ -99,8 +99,8 @@ object DAO {
     """.as(RowParsers.packageParser.singleOpt)
 
   def findFilesForPackage(packageId: Int)(implicit connection: Connection) = {
-    // XXX count
-    SQL""" SELECT id, package_id as packageId, path, 0 AS classCount
+    SQL""" SELECT id, package_id as packageId, path,
+                  (SELECT count(*) FROM class_entry WHERE file_artifact_id = file_artifact.id) AS classCount
            FROM file_artifact WHERE package_id = $packageId
            ORDER BY path
     """.as(RowParsers.fileWithCountParser.*)
