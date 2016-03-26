@@ -65,7 +65,7 @@ object DatabaseBuilder {
         val cpioEntry = entry.asInstanceOf[CpioArchiveEntry]
         if (cpioEntry.isRegularFile && cpioEntry.getName.endsWith(".jar")) {
           val jarPath = entry.getName().replaceFirst("^\\.", "")
-          val fileId = SQL"INSERT INTO file_artifact(path, package_id) VALUES ($jarPath, $packageId)"
+          val fileId = SQL"INSERT INTO file_artifact(path, package_id, collection_id) VALUES ($jarPath, $packageId, #$collectionId)"
             .executeInsert().get.toInt
           // JarInputStream is buggy
           processJar(new ZipInputStream(is), fileId, collectionId)

@@ -150,6 +150,7 @@ private class ClassEntryQuery(collectionId: Int, nameQuery: String,
            package.id AS packageId, package.name AS packageName
       FROM package JOIN file_artifact ON package.id = package_id
                    JOIN entries_sorted ON file_artifact.id = entries_sorted.file_artifact_id
+      WHERE package.collection_id = $collectionId AND file_artifact.collection_id = $collectionId
     """.as(RowParsers.classJoinedParser.*)
 
   def totalCount = SQL"""
@@ -175,6 +176,7 @@ private class ManifestEntryQuery(collectionId: Int, keyQuery: String, valueQuery
            package_id AS packageId, package.name AS packageName
       FROM package JOIN file_artifact ON package.id = file_artifact.package_id
                    JOIN entries ON file_artifact.id = entries.file_artifact_id
+      WHERE package.collection_id = $collectionId AND file_artifact.collection_id = $collectionId
     """.as(RowParsers.manifestJoinedParser.*)
 
   def totalCount = SQL"""

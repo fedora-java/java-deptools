@@ -12,6 +12,7 @@ CREATE TABLE package (
 
 CREATE TABLE file_artifact (
     id SERIAL PRIMARY KEY NOT NULL,
+    collection_id integer NOT NULL REFERENCES collection(id) ON DELETE CASCADE, -- denormalized
     package_id integer NOT NULL REFERENCES package(id) ON DELETE CASCADE,
     path text NOT NULL
 );
@@ -33,8 +34,9 @@ CREATE TABLE manifest_entry (
 );
 
 
-CREATE INDEX package__collection_id ON package(collection_id);
+CREATE INDEX package__collection_id ON package(collection_id, id);
 CREATE INDEX file_artifact__package_id ON file_artifact (package_id);
+CREATE INDEX file_artifact__collection_id ON file_artifact (collection_id, id);
 CREATE INDEX class_entry__file_artifact_id ON class_entry(file_artifact_id);
 CREATE INDEX manifest_entry__file_artifact_id ON manifest_entry (file_artifact_id);
 
