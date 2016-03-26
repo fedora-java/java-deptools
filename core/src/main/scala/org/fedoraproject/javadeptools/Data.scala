@@ -49,7 +49,14 @@ case class ClassResult(
   id: Int,
   namespace: Option[String],
   className: String,
-  fileId: Int)
+  fileId: Int) {
+  def qualifiedName = {
+    namespace match {
+      case Some(ns) => s"${ns}.${className}"
+      case None => className
+    }
+  }
+}
 
 case class ClassResultJoined(
   id: Int,

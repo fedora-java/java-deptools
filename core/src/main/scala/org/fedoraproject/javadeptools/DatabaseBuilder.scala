@@ -2,6 +2,7 @@ package org.fedoraproject.javadeptools
 
 import java.io.File
 import java.io.IOException
+import java.net.URL
 import java.sql.Connection
 import java.sql.SQLException
 import java.util.jar.Manifest
@@ -59,8 +60,9 @@ object DatabaseBuilder {
                  VALUES ($fileId, {key}, {value}, $collectionId)""", manifestParams).execute()
   }
 
-  private def processPackage(path: File, collectionId: Int)(implicit connection: Connection) = {
-    println(s"Processing $path")
+  private def processPackage(url: URL, collectionId: Int)(implicit connection: Connection) = {
+    println(s"Processing $url")
+    val path = new File(url.toURI())
     val name = path.getName.replaceFirst("\\.rpm$", "").replaceAll("-[^-]*-[^-]*$", "");
     val packageId = SQL"INSERT INTO package(name, collection_id) VALUES ($name, $collectionId)".executeInsert().get.toInt
     var is: RpmArchiveInputStream = null
@@ -87,20 +89,24 @@ object DatabaseBuilder {
     }
   }
 
-  def buildFromPath(collectionName: String, path: File)(implicit ds: DataSource) = {
+  def buildFromPath(collectionName: String, path: File)(implicit ds: DataSource) {
     val rpms = findRpms(path)
     if (rpms.isEmpty) throw new RuntimeException(s"No RPMs found in $path")
+    buildFromURLs(collectionName, Seq(path.toURL))
+  }
+
+  def buildFromURLs(collectionName: String, urls: Iterable[URL])(implicit ds: DataSource) {
     try {
       implicit val connection = ds.getConnection()
       try {
         SQL"DELETE FROM collection WHERE name = $collectionName AND NOT finalized".executeUpdate()
         val collectionId = SQL"INSERT INTO collection(name) VALUES ($collectionName)".executeInsert().get.toInt
         for {
-          rpm <- rpms.par
+          url <- urls.par
           threadConnection <- managed(ds.getConnection())
         } {
           threadConnection.setAutoCommit(false)
-          processPackage(rpm, collectionId)(threadConnection)
+          processPackage(url, collectionId)(threadConnection)
           threadConnection.commit()
         }
         connection.setAutoCommit(false)
