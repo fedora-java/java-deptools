@@ -45,8 +45,8 @@ object DatabaseBuilder {
         }
       } else if (!entry.isDirectory() && entry.getName().endsWith(".class") && !entry.getName().contains("$")) {
         val nameParts = entry.getName().replaceFirst("\\.class$", "").split("/").toList;
-        val namespace = if (nameParts.length - 2 > 0)
-          nameParts.slice(0, nameParts.length - 2).mkString(".") else null
+        val namespace = if (nameParts.length - 1 > 0)
+          nameParts.slice(0, nameParts.length - 1).mkString(".") else null
         val className = nameParts.last
         classParams += Seq('namespace -> namespace, 'class_name -> className)
       }
