@@ -9,5 +9,7 @@ libraryDependencies ++= Seq(
   "org.fedoraproject.javadeptools" % "java-deptools-native" % "1.0.0-SNAPSHOT",
   "com.typesafe.play" %% "anorm" % "2.5.0",
   "org.scalikejdbc" %% "scalikejdbc" % "2.3.5",
-  "com.github.scopt" %% "scopt" % "3.4.0"
+  "com.github.scopt" %% "scopt" % "3.4.0",
+
+  "org.scalatest" %% "scalatest" % "2.2.4" % "test"
 )
