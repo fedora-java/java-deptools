@@ -2,21 +2,30 @@ package controllers
 
 import java.sql.Connection
 
-import scala.collection.JavaConverters.asScalaBufferConverter
-import scala.collection.JavaConverters.mapAsJavaMapConverter
+import scala.language.implicitConversions
 
-import org.fedoraproject.javadeptools._
-import org.fedoraproject.javadeptools.DAO._
+import org.fedoraproject.javadeptools.ClassResultJoined
+import org.fedoraproject.javadeptools.DAO.findAllCollections
+import org.fedoraproject.javadeptools.DAO.findClassesForFile
+import org.fedoraproject.javadeptools.DAO.findCollectionByName
+import org.fedoraproject.javadeptools.DAO.findFileById
+import org.fedoraproject.javadeptools.DAO.findFilesForPackage
+import org.fedoraproject.javadeptools.DAO.findManifestEntriesForFile
+import org.fedoraproject.javadeptools.DAO.findPackageByName
+import org.fedoraproject.javadeptools.DAO.queryClasses
+import org.fedoraproject.javadeptools.DAO.queryManifests
+import org.fedoraproject.javadeptools.ManifestResultJoined
+import org.fedoraproject.javadeptools.Page
 
-import play.api.Play.current
-import play.api.Play
-import play.api.db.DB
+import javax.inject.Inject
 import play.api.data.Form
 import play.api.data.Forms.boolean
 import play.api.data.Forms.default
 import play.api.data.Forms.mapping
 import play.api.data.Forms.text
-import play.api.i18n.Messages.Implicits.applicationMessages
+import play.api.db.Database
+import play.api.i18n.I18nSupport
+import play.api.i18n.MessagesApi
 import play.api.mvc.Action
 import play.api.mvc.AnyContent
 import play.api.mvc.Controller
@@ -35,16 +44,16 @@ case class ManifestResults(result: Page[ManifestResultJoined]) extends SearchRes
 case class SearchData(queryType: String, query: String, query2: String,
   collectionName: String, caseSensitive: Boolean)
 
-object DBAction {
-  def apply(block: Request[AnyContent] => Connection => Result) = Action { request =>
-    DB.withConnection { conn => block(request)(conn) }
-  }
-}
-
-object Application extends Controller {
+class Application @Inject() (db: Database)(val messagesApi: MessagesApi) extends Controller with I18nSupport {
   implicit def optionToResult(option: Option[Result]) = option match {
     case Some(x) => x
     case None => NotFound
+  }
+
+  object DBAction {
+    def apply(block: Request[AnyContent] => Connection => Result) = Action { request =>
+      db.withConnection { conn => block(request)(conn) }
+    }
   }
 
   val searchForm = Form(
