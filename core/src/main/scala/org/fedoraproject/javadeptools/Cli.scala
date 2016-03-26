@@ -1,9 +1,11 @@
 import java.io.File
 
-import scopt._
-import scalikejdbc.ConnectionPool
+import org.fedoraproject.javadeptools.DatabaseBuilder.buildFromPath
 
-import org.fedoraproject.javadeptools.DatabaseBuilder._
+import com.zaxxer.hikari.HikariDataSource
+
+import javax.sql.DataSource
+import scopt.OptionParser
 
 case class Config(
   dbUrl: String = "jdbc:postgresql:java-deptools",
@@ -25,8 +27,11 @@ object Cli {
   def main(args: Array[String]) {
     parser.parse(args, Config()) match {
       case Some(config) => {
-        ConnectionPool.singleton(config.dbUrl, config.dbUser, "")
-        implicit val pool = ConnectionPool()
+        val hds = new HikariDataSource()
+        hds.setDriverClassName("org.postgresql.Driver")
+        hds.setJdbcUrl(config.dbUrl)
+        hds.setUsername(config.dbUser)
+        implicit val ds: DataSource = hds
         config.command match {
           case 'build => buildFromPath(config.collection, config.file)
           case _ => System.exit(1)

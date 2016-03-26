@@ -1,22 +1,28 @@
 package org.fedoraproject.javadeptools
 
-import anorm._
-import resource.managed
-import scala.collection.JavaConverters._
-import scalikejdbc.ConnectionPool
 import java.io.File
+import java.io.IOException
 import java.sql.Connection
-import org.fedoraproject.javadeptools.rpm.RpmArchiveInputStream
+import java.sql.SQLException
+import java.util.jar.Manifest
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+
+import scala.collection.JavaConverters.mapAsScalaMapConverter
+import scala.collection.mutable.ArrayBuffer
+
 import org.apache.commons.compress.archivers.ArchiveEntry
 import org.apache.commons.compress.archivers.cpio.CpioArchiveEntry
-import java.util.zip.ZipInputStream
-import java.util.zip.ZipEntry
-import scala.collection.mutable.MutableList
-import scala.collection.mutable.ArrayBuffer
-import java.sql.DriverManager
-import java.sql.SQLException
-import java.io.IOException
-import java.util.jar.Manifest
+import org.fedoraproject.javadeptools.rpm.RpmArchiveInputStream
+
+import anorm.BatchSql
+import anorm.NamedParameter
+import anorm.NamedParameter.symbol
+import anorm.ParameterValue.toParameterValue
+import anorm.ParameterValue.toParameterValue$default$2
+import anorm.SqlStringInterpolation
+import javax.sql.DataSource
+import resource.managed
 
 object DatabaseBuilder {
   private def findRpms(file: File): List[File] = {
@@ -81,17 +87,17 @@ object DatabaseBuilder {
     }
   }
 
-  def buildFromPath(collectionName: String, path: File)(implicit pool: ConnectionPool) = {
+  def buildFromPath(collectionName: String, path: File)(implicit ds: DataSource) = {
     val rpms = findRpms(path)
     if (rpms.isEmpty) throw new RuntimeException(s"No RPMs found in $path")
     try {
-      implicit val connection = pool.borrow()
+      implicit val connection = ds.getConnection()
       try {
         SQL"DELETE FROM collection WHERE name = $collectionName AND NOT finalized".executeUpdate()
         val collectionId = SQL"INSERT INTO collection(name) VALUES ($collectionName)".executeInsert().get.toInt
         for {
           rpm <- rpms.par
-          threadConnection <- managed(pool.borrow())
+          threadConnection <- managed(ds.getConnection())
         } {
           threadConnection.setAutoCommit(false)
           processPackage(rpm, collectionId)(threadConnection)
