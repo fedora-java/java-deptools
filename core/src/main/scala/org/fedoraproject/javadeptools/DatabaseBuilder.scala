@@ -99,7 +99,7 @@ object DatabaseBuilder {
         }
         connection.setAutoCommit(false)
         SQL"DELETE FROM collection WHERE name = $collectionName AND finalized".executeUpdate()
-        SQL"UPDATE collection SET finalized = true WHERE id = $collectionId"
+        SQL"UPDATE collection SET finalized = true WHERE id = $collectionId".executeUpdate()
         connection.commit()
         connection.setAutoCommit(true)
         SQL"VACUUM FULL ANALYZE".execute()
