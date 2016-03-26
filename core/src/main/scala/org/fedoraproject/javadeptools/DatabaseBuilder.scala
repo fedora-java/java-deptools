@@ -98,7 +98,7 @@ object DatabaseBuilder {
   def buildFromPath(collectionName: String, path: File)(implicit ds: DataSource) {
     val rpms = findRpms(path)
     if (rpms.isEmpty) throw new RuntimeException(s"No RPMs found in $path")
-    buildFromURLs(collectionName, Seq(path.toURI.toURL))
+    buildFromURLs(collectionName, rpms.map(_.toURI.toURL))
   }
 
   def buildFromURLs(collectionName: String, urls: Iterable[URL])(implicit ds: DataSource) {
