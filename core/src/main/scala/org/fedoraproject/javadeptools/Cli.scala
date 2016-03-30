@@ -1,3 +1,5 @@
+package org.fedoraproject.javadeptools
+
 import java.io.File
 
 import org.fedoraproject.javadeptools.DatabaseBuilder.buildFromPath

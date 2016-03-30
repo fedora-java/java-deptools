@@ -6,7 +6,7 @@ shell='ssh root@java-deptools.fedorainfracloud.org'
 cmd='git ls-tree -r HEAD |awk "/ blob /{print\$4}"'
 { eval "$cmd" && git submodule foreach "$cmd | sed s@^@\$path/@"; } | \
     sed '/^Entering /d' | xargs tar --xform "s@^@java-deptools-$VERSION/@S" -cf java-deptools-$VERSION.tar.gz
-rm -r build
+rm -rf build
 mkdir build
 cd build
 sed "s/^Release:[^%]*/&.$RELNO/" ../java-deptools.spec > java-deptools.spec

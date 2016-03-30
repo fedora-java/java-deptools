@@ -31,13 +31,13 @@ mkdir -p %{buildroot}%{_unitdir}
 cp -pr java-deptools-core-%{version}/lib/* %{buildroot}%{_javadir}/%{name}/
 cp -pr java-deptools-frontend-%{version}/lib/* %{buildroot}%{_javadir}/%{name}/
 
-%jpackage_script org.fedoraproject.javadeptools.cli.Main '' '' %{name} %{name} 1
+%jpackage_script org.fedoraproject.javadeptools.Cli '' '' %{name} %{name} 1
 %jpackage_script play.core.server.ProdServerStart '' '-Dpidfile.path=/dev/null' %{name} %{name}-frontend 1
 
 install -m755 generate-repos.sh %{buildroot}%{_bindir}/java-deptools-repogen
 install -m644 java-deptools-frontend.service %{buildroot}%{_unitdir}/
 mkdir -p %{buildroot}%{_datadir}/%{name}
-install -m644 core/schema.sql %{buildroot}%{_datadir}/%{name}/
+install -m644 core/src/main/resources/schema.sql %{buildroot}%{_datadir}/%{name}/
 
 %pre
 getent group %{name} >/dev/null || groupadd -r %{name}
