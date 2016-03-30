@@ -76,6 +76,11 @@ class Test extends FlatSpec with Matchers with BeforeAndAfterAll {
     pkg.get.name shouldEqual "args4j"
   }
 
+  it should "find file by id" in {
+    val file = DAO.findFileById(1)
+    file shouldBe defined
+  }
+
   it should "list jars in package" in {
     val pkg = DAO.findPackageByName(2, "sat4j").get
     val jars = DAO.findFilesForPackage(pkg.id)

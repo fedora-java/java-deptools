@@ -37,6 +37,7 @@ case class PackageResult(
 case class FileResult(
   id: Int,
   packageId: Int,
+  packageName: String,
   path: String)
 
 case class FileResultWithCount(
@@ -114,9 +115,11 @@ object DAO {
   }
 
   def findFileById(fileId: Int)(implicit connection: Connection) =
-    SQL"SELECT id, package_id AS packageId, path FROM file_artifact WHERE id = $fileId".as(RowParsers.fileParser.singleOpt)
+    SQL"""SELECT file_artifact.id AS id, package_id AS packageId, path, package.name AS packageName
+          FROM file_artifact JOIN package ON package_id = package.id
+          WHERE file_artifact.id = $fileId""".as(RowParsers.fileParser.singleOpt)
 
-  def findClassesForFile(fileId: Int)(implicit connection: Connection) =
+  def findClassesForFile(fileId: Int)(implicit connetion: Connection) =
     SQL"""SELECT id, namespace, class_name AS className, file_artifact_id AS fileId
           FROM class_entry WHERE file_artifact_id = $fileId
           ORDER BY class_name, namespace
