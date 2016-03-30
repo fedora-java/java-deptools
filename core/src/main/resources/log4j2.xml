@@ -3,7 +3,7 @@
     <root level="INFO">
       <appenderRef ref="console"/>
     </root>
-    <logger name="org.hibernate" level="WARN"/>
+    <logger name="com.zaxxer.hikari.pool.PoolBase" level="WARN"/>
   </loggers>
   <appenders>
     <console name="console" target="SYSTEM_OUT">
