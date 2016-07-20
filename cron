@@ -1,5 +1,5 @@
 #!/bin/bash
 set -e
 cd /var/lib/java-deptools/repos/
-java-deptools-repogen f25 f24 f23 f22 &> /var/log/java-deptools.log
+java-deptools-repogen f25 f24 f23 &> /var/log/java-deptools.log
 echo 'Repo regeneration successful' >> /var/log/java-deptools.log
