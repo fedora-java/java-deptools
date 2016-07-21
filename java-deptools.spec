@@ -42,6 +42,7 @@ mkdir -p %{buildroot}%{_datadir}/%{name}
 install -m644 core/src/main/resources/schema.sql %{buildroot}%{_datadir}/%{name}/
 install -m644 frontend/conf/application.conf %{buildroot}%{_sysconfdir}/%{name}/
 install -m644 frontend/conf/logback.xml %{buildroot}%{_sysconfdir}/%{name}/
+mkdir -p %{buildroot}%{_localstatedir}/log/%{name}
 
 %pre
 getent group %{name} >/dev/null || groupadd -r %{name}
@@ -64,5 +65,6 @@ exit 0
 %{_datadir}/%{name}
 %{_javadir}/%{name}
 %{_sysconfdir}/%{name}
+%attr(755, %{name}, %{name}) %{_localstatedir}/log/%{name}
 %attr(755, %{name}, %{name}) %{_sharedstatedir}/%{name}
 %{_unitdir}/%{name}-frontend.service

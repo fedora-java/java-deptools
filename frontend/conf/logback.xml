@@ -4,7 +4,7 @@
     converterClass="play.api.libs.logback.ColoredLevel" />
 
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-    <file>/var/log/java-deptools-frontend/application.log</file>
+    <file>/var/log/java-deptools/frontend.log</file>
     <encoder>
       <pattern>%date [%level] from %logger in %thread -
         %message%n%xException</pattern>

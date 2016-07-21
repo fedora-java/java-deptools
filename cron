@@ -1,5 +1,8 @@
 #!/bin/bash
 set -e
+log=/var/log/java-deptools/backend.log
 cd /var/lib/java-deptools/repos/
-java-deptools-repogen f25 f24 f23 &> /var/log/java-deptools.log
-echo 'Repo regeneration successful' >> /var/log/java-deptools.log
+date > $log
+java-deptools-repogen f25 f24 f23 &> $log
+date > $log
+echo 'Repo regeneration successful' >> $log
