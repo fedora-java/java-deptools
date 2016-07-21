@@ -6,6 +6,7 @@ Summary:        Tool for analysis of Java RPMS
 License:        ASL 2.0
 BuildArch:      noarch
 
+AutoReqProv:    no
 Requires:       java-headless
 
 Source0:        %{name}-%{version}.tar.gz
