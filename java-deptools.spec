@@ -32,13 +32,15 @@ cp -pr java-deptools-core-%{version}/lib/* %{buildroot}%{_javadir}/%{name}/
 cp -pr java-deptools-frontend-%{version}/lib/* %{buildroot}%{_javadir}/%{name}/
 
 %jpackage_script org.fedoraproject.javadeptools.Cli '' '' %{name} %{name} 1
-%jpackage_script play.core.server.ProdServerStart '' '-Dconfig.file=/etc/java-deptools/application.conf' %{name} %{name}-frontend 1
+%global args "-Dconfig.file=%{_sysconfdir}/%{name}/application.conf -Dlogger.file=%{_sysconfdir}/%{name}/logback.xml"
+%jpackage_script play.core.server.ProdServerStart '' %{args} %{name} %{name}-frontend 1
 
 install -m755 generate-repos.sh %{buildroot}%{_bindir}/java-deptools-repogen
 install -m644 java-deptools-frontend.service %{buildroot}%{_unitdir}/
 mkdir -p %{buildroot}%{_datadir}/%{name}
 install -m644 core/src/main/resources/schema.sql %{buildroot}%{_datadir}/%{name}/
 install -m644 frontend/conf/application.conf %{buildroot}%{_sysconfdir}/%{name}/
+install -m644 frontend/conf/logback.xml %{buildroot}%{_sysconfdir}/%{name}/
 
 %pre
 getent group %{name} >/dev/null || groupadd -r %{name}
