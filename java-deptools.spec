@@ -8,6 +8,8 @@ BuildArch:      noarch
 
 AutoReqProv:    no
 Requires:       java-headless
+Requires:       wget
+Requires:       dnf-command(repoquery)
 
 Source0:        %{name}-%{version}.tar.gz
 

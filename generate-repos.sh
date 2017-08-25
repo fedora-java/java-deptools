@@ -5,15 +5,16 @@ sync_repo() {
     mkdir -p $1
     pushd $1
     local repopath="$kojipath/repos/$1-build/latest/x86_64"
-    local java_pkgs=$(repoquery --repoid $1 --repofrompath "$1,$repopath" \
-                      --archlist x86_64,noarch --whatprovides '**.jar' \
-                      --qf="%{relativepath}"| sort -u)
+    local jars=$(dnf repoquery --quiet --repofrompath "$1,$repopath" \
+                    --disablerepo \* --available --enablerepo $1 \
+                    --archlist x86_64,noarch --file '*.jar' \
+                    --qf="%{relativepath}"| sort -u)
     local files=""
-    for pkg in $java_pkgs; do
-        local filename=`basename "$pkg"`
+    for jar in $jars; do
+        local filename=`basename "$jar"`
         files="$filename"$'\n'"$files"
         if [ ! -f "$filename" ]; then
-            wget -nv "$kojipath/$pkg"
+            wget -nv "$kojipath/$jar"
         fi
     done
     comm -13 <(sort <<< "$files") <(ls -1 *.rpm | sort) | xargs --no-run-if-empty rm
