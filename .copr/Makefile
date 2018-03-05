@@ -28,7 +28,7 @@ $(outdir)/java-deptools-$(version)-$(release).src.rpm: $(tmpdir)/java-deptools.s
 
 $(tmpdir)/sbt-$(sbt_version).tgz:
 	@mkdir -p $(tmpdir)
-	wget https://github.com/sbt/sbt/releases/download/v$(sbt_version)/sbt-$(sbt_version).tgz -O $@
+	curl -L https://github.com/sbt/sbt/releases/download/v$(sbt_version)/sbt-$(sbt_version).tgz -o $@
 
 .PHONY: srpm
 
