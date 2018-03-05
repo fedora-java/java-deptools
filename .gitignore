@@ -1,6 +1,11 @@
-target/
+target
 .classpath
 .project
-.settings/
+.settings
 frontend/logs
-/bin/
+bin
+build
+*.gz
+*.rpm
+chroot
+result
