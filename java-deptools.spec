@@ -1,6 +1,6 @@
 # spec for java-deptools server deployment with bundled libs
 Name:           java-deptools
-Version:        0
+Version:        0.1
 Release:        1%{?dist}
 Summary:        Tool for analysis of Java RPMS
 License:        ASL 2.0

@@ -1,6 +1,6 @@
 lazy val commonSettings = Seq(
   organization := "org.fedoraproject",
-  version := "0",
+  version := "0.1",
   scalaVersion := "2.11.8"
 )
 
