@@ -9,7 +9,7 @@ Summary:        Tool for analysis of Java RPMS
 License:        ASL 2.0
 BuildArch:      noarch
 
-BuildRequires:  java-devel
+BuildRequires:  javapackages-local
 BuildRequires:  systemd
 
 AutoReqProv:    no
