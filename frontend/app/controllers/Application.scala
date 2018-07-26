@@ -76,7 +76,7 @@ class Application @Inject() (db: Database)(val messagesApi: MessagesApi) extends
         val content = if (formData.query.length > 0) {
           formData.queryType match {
             case "classes" =>
-              val page = queryClasses(collection.id, formData.query + '%', formData.caseSensitive, pageNo)
+              val page = queryClasses(collection.id, formData.query.replace('/', '.') + '%', formData.caseSensitive, pageNo)
               Some(ClassResults(page))
             case "manifests" =>
               val page = queryManifests(collection.id, formData.query, '%' + formData.query2 + '%',
