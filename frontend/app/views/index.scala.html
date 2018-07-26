@@ -6,6 +6,8 @@
 @import implicits._
 @import org.fedoraproject.javadeptools.{ ClassResultJoined, ManifestResultJoined }
 
+@implicitFieldConstructor = @{ b3.horizontal.fieldConstructor("col-md-2", "col-md-10") }
+
 @fileName(fileId: Int, filePath: String) = {
     <a title="@filePath" class="ellipsized"
        href="@routes.Application.fileArtifactDetail(fileId)">
@@ -20,25 +22,30 @@
 }
 
 @main("Search for Java classes in Fedora", "search") {
-    @form(action = routes.Application.index(1)) {
-        <div>
-            @select(searchForm("qtype"),
-                    options(Map("classes" -> "Classes", "manifests" -> "Manifests")),
-                    '_label -> "What to search",
-                    'onChange -> "changeQueryType()")
-            @select(searchForm("collection"),
-                    options(collections.map(_.name).toList),
-                    '_label -> "Package collection")
-        </div>
-        <div>
-            @inputText(searchForm("q"), 'autofocus -> "autofocus")
-            @inputText(searchForm("q2"))
-            <button type="submit">Search</button>
-        </div>
-            @checkbox(searchForm("cs"), '_text -> "Case sensitive", '_showConstraints -> false, '_label -> None)
-        <div>
-        </div>
+    @b3.form(action = routes.Application.index(1)) {
+        @b3.radio(
+            searchForm("qtype"),
+            options(Map("classes" -> "Classes", "manifests" -> "Manifests")),
+            'value -> "classes",
+            '_label -> "What to search:",
+            '_inline -> true,
+            'onChange -> "changeQueryType()"
+        )
+        @b3.radio(
+            searchForm("collection"),
+            options(collections.map(_.name).toList),
+            'value -> collections.map(_.name).head,
+            '_label -> "Package collection:",
+            '_inline -> true
+        )
+
+        @b3.text(searchForm("q"), 'autofocus -> "autofocus", '_label -> "Class name:")
+        @b3.text(searchForm("q2"), '_label -> "_")
+        @b3.checkbox(searchForm("cs"), '_label -> "Case sensitive:")
+        @b3.submit('class -> "btn btn-primary"){Search}
     }
+
+    <hr/>
 
     @results match {
         case Some(ClassResults(page)) => {

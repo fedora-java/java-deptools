@@ -24,8 +24,8 @@ function changeQueryType() {
     var transition = {
             "classes": ["Class name:"],
             "manifests": ["Header:", "Value:"]
-    }[$("#qtype")[0].value];
-    $("#q2").css("display", transition[1]? "inline": "none").prop("disabled", !transition[1]);
+    }[$("input[name='qtype']:checked").val()];
+    $("#q2_field").css("display", transition[1]? "block": "none").prop("disabled", !transition[1]);
     $("label[for='q']").text(transition[0]);
     $("label[for='q2']").text(transition[1] || "");
 }
