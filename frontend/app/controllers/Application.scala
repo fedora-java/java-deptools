@@ -69,20 +69,24 @@ class Application @Inject() (db: Database)(val messagesApi: MessagesApi) extends
       val form = searchForm.bindFromRequest
       implicit val formData = form.get
       val collections = findAllCollections
-      val collection = collections.find(_.name == formData.collectionName).getOrElse(collections.head)
-      val content = if (formData.query.length > 0) {
-        formData.queryType match {
-          case "classes" =>
-            val page = queryClasses(collection.id, formData.query + '%', formData.caseSensitive, pageNo)
-            Some(ClassResults(page))
-          case "manifests" =>
-            val page = queryManifests(collection.id, formData.query, '%' + formData.query2 + '%',
-              formData.caseSensitive, pageNo)
-            Some(ManifestResults(page))
-          case _ => None
-        }
-      } else None
-      Ok(views.html.index(form, collections, collection, content))
+      if (collections.isEmpty) {
+        InternalServerError("Database not populated yet. No collections setup.")
+      } else {
+        val collection = collections.find(_.name == formData.collectionName).getOrElse(collections.head)
+        val content = if (formData.query.length > 0) {
+          formData.queryType match {
+            case "classes" =>
+              val page = queryClasses(collection.id, formData.query + '%', formData.caseSensitive, pageNo)
+              Some(ClassResults(page))
+            case "manifests" =>
+              val page = queryManifests(collection.id, formData.query, '%' + formData.query2 + '%',
+                formData.caseSensitive, pageNo)
+              Some(ManifestResults(page))
+            case _ => None
+          }
+        } else None
+        Ok(views.html.index(form, collections, collection, content))
+      }
   }
 
   def about = Action(implicit request => Ok(views.html.about()))
